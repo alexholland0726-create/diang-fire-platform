@@ -32,12 +32,13 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.ALIYUN_SSH_KEY }}" > ~/.ssh/aliyun_key
           chmod 600 ~/.ssh/aliyun_key
-          ssh-keyscan -p "${{ secrets.ALIYUN_PORT }}" "${{ secrets.ALIYUN_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${{ secrets.ALIYUN_PORT }}" "${{ secrets.ALIYUN_HOST }}" >> ~/.ssh/known_hosts || true
 
       - name: Upload archive to server
         run: |
           scp -P "${{ secrets.ALIYUN_PORT }}" \
             -i ~/.ssh/aliyun_key \
+            -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=20 \
             /tmp/diang-fire-platform.tar.gz \
@@ -47,6 +48,7 @@ jobs:
         run: |
           ssh -p "${{ secrets.ALIYUN_PORT }}" \
             -i ~/.ssh/aliyun_key \
+            -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=20 \
             "${{ secrets.ALIYUN_USER }}@${{ secrets.ALIYUN_HOST }}" << 'EOF'
