@@ -1,0 +1,267 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const dataDir = process.env.DIANG_DATA_DIR || path.join(process.cwd(), "data");
+const storePath = path.join(dataDir, "diang-data.json");
+
+export type ProductCategoryRecord = {
+  id: number;
+  slug: string;
+  nameZh: string;
+  nameEn: string;
+};
+
+export type ProductRecord = {
+  id: number;
+  categoryId: number;
+  categoryNameZh: string;
+  categoryNameEn: string;
+  sku: string;
+  nameZh: string;
+  nameEn: string;
+  summaryZh: string;
+  summaryEn: string;
+  specs: string;
+  imageUrl: string;
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProductInput = {
+  categoryId: number;
+  sku: string;
+  nameZh: string;
+  nameEn: string;
+  summaryZh: string;
+  summaryEn: string;
+  specs: string;
+  imageUrl: string;
+  status: ProductRecord["status"];
+};
+
+export type InquiryRecord = {
+  id: number;
+  company: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  category: string;
+  message: string;
+  status: "NEW" | "CONTACTED" | "QUOTED" | "CLOSED";
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type InquiryInput = {
+  company: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  category: string;
+  message: string;
+};
+
+type ProductStoredRecord = Omit<ProductRecord, "categoryNameZh" | "categoryNameEn">;
+
+type Store = {
+  nextProductId: number;
+  nextInquiryId: number;
+  categories: ProductCategoryRecord[];
+  products: ProductStoredRecord[];
+  inquiries: InquiryRecord[];
+};
+
+const categorySeeds: ProductCategoryRecord[] = [
+  { id: 1, slug: "rescue-equipment", nameZh: "消防救援装备", nameEn: "Fire Rescue Equipment" },
+  { id: 2, slug: "respiratory-protection", nameZh: "呼吸防护", nameEn: "Respiratory Protection" },
+  { id: 3, slug: "firewear", nameZh: "消防服装", nameEn: "Fire Protective Clothing" },
+  { id: 4, slug: "extinguishing", nameZh: "灭火设备", nameEn: "Fire Extinguishing Equipment" },
+  { id: 5, slug: "emergency-lighting", nameZh: "应急照明", nameEn: "Emergency Lighting" },
+  { id: 6, slug: "industrial-safety", nameZh: "工业安全", nameEn: "Industrial Safety" }
+];
+
+function defaultStore(): Store {
+  return {
+    nextProductId: 1,
+    nextInquiryId: 1,
+    categories: categorySeeds,
+    products: [],
+    inquiries: []
+  };
+}
+
+function ensureDataDir() {
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+}
+
+function normalizeStore(store: Partial<Store>): Store {
+  const categories = categorySeeds.map((seed) => {
+    const existing = store.categories?.find((item) => item.slug === seed.slug);
+    return existing ? { ...existing, ...seed } : seed;
+  });
+
+  const products = (store.products || []).map((product) => ({
+    ...product,
+    imageUrl: product.imageUrl || ""
+  }));
+
+  const inquiries = (store.inquiries || []).map((inquiry) => ({
+    ...inquiry,
+    category: inquiry.category || "",
+    status: inquiry.status || "NEW"
+  }));
+
+  return {
+    nextProductId:
+      store.nextProductId || Math.max(0, ...products.map((product) => product.id)) + 1,
+    nextInquiryId:
+      store.nextInquiryId || Math.max(0, ...inquiries.map((inquiry) => inquiry.id)) + 1,
+    categories,
+    products,
+    inquiries
+  };
+}
+
+function readStore(): Store {
+  ensureDataDir();
+
+  if (!fs.existsSync(storePath)) {
+    const store = defaultStore();
+    writeStore(store);
+    return store;
+  }
+
+  const raw = fs.readFileSync(storePath, "utf8");
+  return normalizeStore(JSON.parse(raw) as Partial<Store>);
+}
+
+function writeStore(store: Store) {
+  ensureDataDir();
+  fs.writeFileSync(storePath, `${JSON.stringify(store, null, 2)}\n`, "utf8");
+}
+
+function withCategory(product: ProductStoredRecord, categories: ProductCategoryRecord[]): ProductRecord {
+  const category = categories.find((item) => item.id === product.categoryId) || categories[0];
+
+  return {
+    ...product,
+    categoryNameZh: category?.nameZh || "",
+    categoryNameEn: category?.nameEn || ""
+  };
+}
+
+export function listCategories() {
+  return readStore().categories;
+}
+
+export function listProducts() {
+  const store = readStore();
+  return store.products
+    .map((product) => withCategory(product, store.categories))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || b.id - a.id);
+}
+
+export function getProduct(id: number) {
+  const store = readStore();
+  const product = store.products.find((item) => item.id === id);
+  return product ? withCategory(product, store.categories) : undefined;
+}
+
+export function createProduct(input: ProductInput) {
+  const store = readStore();
+  const now = new Date().toISOString();
+  const product: ProductStoredRecord = {
+    id: store.nextProductId,
+    categoryId: input.categoryId,
+    sku: input.sku,
+    nameZh: input.nameZh,
+    nameEn: input.nameEn,
+    summaryZh: input.summaryZh,
+    summaryEn: input.summaryEn,
+    specs: input.specs,
+    imageUrl: input.imageUrl,
+    status: input.status,
+    createdAt: now,
+    updatedAt: now
+  };
+
+  store.nextProductId += 1;
+  store.products.unshift(product);
+  writeStore(store);
+
+  return product.id;
+}
+
+export function updateProduct(id: number, input: ProductInput) {
+  const store = readStore();
+  const index = store.products.findIndex((item) => item.id === id);
+
+  if (index < 0) {
+    return false;
+  }
+
+  store.products[index] = {
+    ...store.products[index],
+    ...input,
+    updatedAt: new Date().toISOString()
+  };
+  writeStore(store);
+  return true;
+}
+
+export function deleteProduct(id: number) {
+  const store = readStore();
+  const nextProducts = store.products.filter((item) => item.id !== id);
+
+  if (nextProducts.length === store.products.length) {
+    return false;
+  }
+
+  store.products = nextProducts;
+  writeStore(store);
+  return true;
+}
+
+export function listInquiries() {
+  return readStore().inquiries.sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id - a.id);
+}
+
+export function createInquiry(input: InquiryInput) {
+  const store = readStore();
+  const now = new Date().toISOString();
+  const inquiry: InquiryRecord = {
+    id: store.nextInquiryId,
+    company: input.company,
+    contactName: input.contactName,
+    phone: input.phone,
+    email: input.email,
+    category: input.category,
+    message: input.message,
+    status: "NEW",
+    createdAt: now,
+    updatedAt: now
+  };
+
+  store.nextInquiryId += 1;
+  store.inquiries.unshift(inquiry);
+  writeStore(store);
+
+  return inquiry.id;
+}
+
+export function updateInquiryStatus(id: number, status: InquiryRecord["status"]) {
+  const store = readStore();
+  const inquiry = store.inquiries.find((item) => item.id === id);
+
+  if (!inquiry) {
+    return false;
+  }
+
+  inquiry.status = status;
+  inquiry.updatedAt = new Date().toISOString();
+  writeStore(store);
+  return true;
+}

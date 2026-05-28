@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  SALES
+  CUSTOMER
+}
+
+enum InquiryStatus {
+  NEW
+  ASSIGNED
+  QUOTED
+  WON
+  LOST
+  ARCHIVED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         UserRole  @default(CUSTOMER)
+  companyId    String?
+  company      Company?  @relation(fields: [companyId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Company {
+  id        String    @id @default(cuid())
+  name      String
+  country   String?
+  city      String?
+  address   String?
+  contact   String?
+  phone     String?
+  email     String?
+  users     User[]
+  inquiries Inquiry[]
+  projects  CustomerProject[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  nameZh    String
+  nameEn    String
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  sku         String?
+  nameZh      String
+  nameEn      String
+  summaryZh   String?
+  summaryEn   String?
+  specs       Json?
+  status      String          @default("DRAFT")
+  categoryId  String
+  category    ProductCategory @relation(fields: [categoryId], references: [id])
+  images      ProductImage[]
+  files       ProductFile[]
+  inquiryItems InquiryItem[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+}
+
+model ProductFile {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  title     String
+  url       String
+}
+
+model Inquiry {
+  id        String        @id @default(cuid())
+  companyId String?
+  company   Company?      @relation(fields: [companyId], references: [id])
+  name      String
+  phone     String?
+  email     String?
+  message   String
+  status    InquiryStatus @default(NEW)
+  items     InquiryItem[]
+  quotes    Quote[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model InquiryItem {
+  id        String   @id @default(cuid())
+  inquiryId String
+  inquiry   Inquiry  @relation(fields: [inquiryId], references: [id])
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  name      String
+  quantity  Int      @default(1)
+}
+
+model Quote {
+  id        String   @id @default(cuid())
+  inquiryId String
+  inquiry   Inquiry  @relation(fields: [inquiryId], references: [id])
+  title     String
+  amount    Decimal?
+  fileUrl   String?
+  createdAt DateTime @default(now())
+}
+
+model Article {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  titleZh   String
+  titleEn   String
+  bodyZh    String
+  bodyEn    String
+  type      String   @default("NEWS")
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Solution {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  titleZh   String
+  titleEn   String
+  bodyZh    String
+  bodyEn    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  titleZh   String
+  titleEn   String?
+  fileUrl   String
+  createdAt DateTime @default(now())
+}
+
+model CustomerProject {
+  id        String           @id @default(cuid())
+  companyId String
+  company   Company          @relation(fields: [companyId], references: [id])
+  name      String
+  address   String?
+  devices   CustomerDevice[]
+  tickets   Ticket[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model CustomerDevice {
+  id        String              @id @default(cuid())
+  projectId String
+  project   CustomerProject     @relation(fields: [projectId], references: [id])
+  name      String
+  model     String?
+  serialNo  String?
+  location  String?
+  events    AlarmEvent[]
+  records   MaintenanceRecord[]
+  createdAt DateTime            @default(now())
+}
+
+model AlarmEvent {
+  id        String         @id @default(cuid())
+  deviceId  String
+  device    CustomerDevice @relation(fields: [deviceId], references: [id])
+  level     String
+  message   String
+  occurredAt DateTime
+  resolved  Boolean        @default(false)
+}
+
+model MaintenanceRecord {
+  id        String         @id @default(cuid())
+  deviceId  String
+  device    CustomerDevice @relation(fields: [deviceId], references: [id])
+  title     String
+  notes     String?
+  servicedAt DateTime
+}
+
+model Ticket {
+  id        String          @id @default(cuid())
+  projectId String?
+  project   CustomerProject? @relation(fields: [projectId], references: [id])
+  title     String
+  status    TicketStatus    @default(OPEN)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}

@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# production and local logs
+.codex-logs/
+*.log
+
+# local environment
+.env
+.env*.local
+
+# local database runtime files
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/*.sqlite
+data/*.json
+public/uploads/
+
+# deployment archives
+*-deploy.zip
+*-update.zip
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
