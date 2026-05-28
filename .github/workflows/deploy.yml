@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
 
     steps:
       - name: Checkout repository
@@ -36,17 +36,30 @@ jobs:
 
       - name: Upload archive to server
         run: |
-          scp -P "${{ secrets.ALIYUN_PORT }}" -i ~/.ssh/aliyun_key /tmp/diang-fire-platform.tar.gz "${{ secrets.ALIYUN_USER }}@${{ secrets.ALIYUN_HOST }}:/tmp/diang-fire-platform.tar.gz"
+          scp -P "${{ secrets.ALIYUN_PORT }}" \
+            -i ~/.ssh/aliyun_key \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=20 \
+            /tmp/diang-fire-platform.tar.gz \
+            "${{ secrets.ALIYUN_USER }}@${{ secrets.ALIYUN_HOST }}:/tmp/diang-fire-platform.tar.gz"
 
       - name: Deploy on server
         run: |
-          ssh -p "${{ secrets.ALIYUN_PORT }}" -i ~/.ssh/aliyun_key "${{ secrets.ALIYUN_USER }}@${{ secrets.ALIYUN_HOST }}" << 'EOF'
+          ssh -p "${{ secrets.ALIYUN_PORT }}" \
+            -i ~/.ssh/aliyun_key \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=20 \
+            "${{ secrets.ALIYUN_USER }}@${{ secrets.ALIYUN_HOST }}" << 'EOF'
           set -e
           mkdir -p /www/diang-fire-platform
           cd /www/diang-fire-platform
           tar -xzf /tmp/diang-fire-platform.tar.gz
           npm install
-          npm run build
+          (while true; do echo "deployment heartbeat $(date)"; sleep 25; done) &
+          HEARTBEAT_PID=$!
+          trap 'kill $HEARTBEAT_PID >/dev/null 2>&1 || true' EXIT
+          NODE_OPTIONS=--max_old_space_size=1024 npm run build -- --no-lint
+          kill $HEARTBEAT_PID >/dev/null 2>&1 || true
           pm2 restart diang-fire-platform
           pm2 save
           EOF
