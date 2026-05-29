@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -15,33 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create deployment archive
-        run: |
-          tar \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            --exclude='.next' \
-            --exclude='.env' \
-            --exclude='.env.local' \
-            --exclude='data/*.json' \
-            --exclude='public/uploads' \
-            -czf /tmp/diang-fire-platform.tar.gz .
-
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.ALIYUN_SSH_KEY }}" > ~/.ssh/aliyun_key
           chmod 600 ~/.ssh/aliyun_key
-
-      - name: Upload archive to server
-        run: |
-          scp -P "${{ secrets.ALIYUN_PORT }}" \
-            -i ~/.ssh/aliyun_key \
-            -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=20 \
-            /tmp/diang-fire-platform.tar.gz \
-            "${{ secrets.ALIYUN_USER }}@${{ secrets.ALIYUN_HOST }}:/tmp/diang-fire-platform.tar.gz"
 
       - name: Deploy on server
         run: |
@@ -50,11 +31,21 @@ jobs:
             -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=20 \
-            "${{ secrets.ALIYUN_USER }}@${{ secrets.ALIYUN_HOST }}" << 'EOF'
+            "${{ secrets.ALIYUN_USER }}@${{ secrets.ALIYUN_HOST }}" \
+            "GIT_URL=https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git bash -s" << 'EOF'
           set -e
           mkdir -p /www/diang-fire-platform
           cd /www/diang-fire-platform
-          tar -xzf /tmp/diang-fire-platform.tar.gz
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin "$GIT_URL"
+          else
+            git remote set-url origin "$GIT_URL"
+          fi
+          git fetch --depth 1 origin main
+          git reset --hard FETCH_HEAD
+          git clean -fd -e data/ -e public/uploads/ -e .env -e .env.local
+          git remote set-url origin "https://github.com/${{ github.repository }}.git"
           npm install
           (while true; do echo "deployment heartbeat $(date)"; sleep 25; done) &
           HEARTBEAT_PID=$!
