@@ -181,11 +181,11 @@ export const featuredProducts = [
   {
     tagZh: "工业安全",
     tagEn: "Industrial Safety",
-    nameZh: "便携式气体检测仪",
-    nameEn: "Portable Gas Detector",
+    nameZh: "MSA 4合1气体检测仪",
+    nameEn: "MSA 4-Gas Detector",
     imageUrl: "https://images.pexels.com/photos/4488668/pexels-photo-4488668.jpeg?auto=compress&cs=tinysrgb&w=1000",
-    descZh: "用于石化、制药、仓储和有限空间作业风险监测。",
-    descEn: "For petrochemical, pharmaceutical, warehousing, and confined-space monitoring."
+    descZh: "适用于有限空间、石化、制药和仓储作业的氧气、可燃气及有毒气体检测。",
+    descEn: "For oxygen, combustible gas, and toxic gas detection in confined spaces, petrochemical, pharmaceutical, and warehousing operations."
   }
 ];
 
