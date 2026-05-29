@@ -9,8 +9,8 @@ export const site = {
   phone: "021-58073572",
   mobile: "13062878007",
   email: "sales@da-fire.com",
-  addressZh: "中国上海",
-  addressEn: "Shanghai, China"
+  addressZh: "上海浦东新区沪南公路8666弄2号楼7楼",
+  addressEn: "7F, Building 2, Lane 8666, Hunan Highway, Pudong New Area, Shanghai"
 };
 
 export const dictionary = {
