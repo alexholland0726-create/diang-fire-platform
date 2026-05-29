@@ -701,26 +701,46 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
         </div>
       </section>
 
-      <section id="contact" className="bg-white px-5 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-md border border-ink/10 bg-ink shadow-soft">
-          <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="relative p-7 text-white md:p-10 lg:p-12">
+      <section id="contact" className="bg-[linear-gradient(180deg,#FFFFFF_0%,#F3F5F8_100%)] px-5 py-16 md:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-8 grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
+                {isZh ? "联系我们" : "Contact"}
+              </div>
+              <h2 className="mt-4 text-3xl font-semibold leading-tight text-ink md:text-5xl">
+                {isZh ? "把联系方式放在客户最容易找到的位置" : "Make It Easy to Reach Diang"}
+              </h2>
+            </div>
+            <p className="max-w-2xl leading-8 text-steel lg:justify-self-end">
+              {isZh
+                ? "采购咨询、产品选型、资料确认、项目配套和售后服务，都可以通过电话、手机或邮箱直接联系。"
+                : "For sourcing, product selection, document checks, project support, and after-sales service, contact us directly by phone, mobile, or email."}
+            </p>
+          </div>
+
+          <div className="overflow-hidden rounded-md border border-ink/10 bg-ink shadow-soft">
+            <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+              <div className="relative p-7 text-white md:p-10 lg:p-12">
               <div className="industrial-grid absolute inset-0 opacity-45" />
               <div className="relative">
-                <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
-                  {isZh ? "联系我们" : "Contact Us"}
+                <div className="inline-flex rounded-md bg-white/10 px-3 py-1 text-sm font-semibold text-gold">
+                  {isZh ? "上海帝昂实业有限公司" : "Shanghai Di'ang Industrial Co., Ltd."}
                 </div>
-                <h2 className="mt-4 text-3xl font-semibold leading-tight md:text-5xl">
-                  {isZh ? "采购咨询、产品选型、项目配套，欢迎直接联系帝昂。" : "For sourcing, selection, and project support, contact Diang directly."}
-                </h2>
+                <h3 className="mt-5 text-3xl font-semibold leading-tight md:text-5xl">
+                  {isZh ? "消防救援装备与工业安全产品采购咨询" : "Fire Rescue and Industrial Safety Sourcing Support"}
+                </h3>
                 <p className="mt-5 max-w-xl leading-8 text-white/68">
                   {isZh
-                    ? "如果您正在做消防救援装备、工业安全产品或项目采购，可以通过电话、手机或邮箱提交需求，我们会尽快跟进。"
-                    : "Send your fire rescue, industrial safety, or project sourcing needs by phone, mobile, or email for follow-up."}
+                    ? "我们更适合处理非标询价、多品牌对比、证书资料确认、项目批量采购和后续维保跟进。"
+                    : "We support custom inquiries, multi-brand comparison, certificate checks, project sourcing, and service follow-up."}
                 </p>
-                <div className="mt-7 grid gap-3 text-sm text-white/72 sm:grid-cols-3">
-                  {(isZh ? ["产品询价", "资料咨询", "项目配套"] : ["Product inquiry", "Documents", "Project support"]).map((item) => (
-                    <div key={item} className="border border-white/12 bg-white/8 px-4 py-3 font-semibold">
+                <div className="mt-8 grid gap-3 text-sm text-white/76 sm:grid-cols-2">
+                  {(isZh
+                    ? ["产品选型与报价", "证书与资料确认", "项目批量采购", "售后与维保跟进"]
+                    : ["Selection and quotation", "Certificate checks", "Project sourcing", "After-sales support"]
+                  ).map((item) => (
+                    <div key={item} className="border-l border-gold bg-white/8 px-4 py-3 font-semibold">
                       {item}
                     </div>
                   ))}
@@ -734,22 +754,23 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                   <a
-                    href={`mailto:${site.email}`}
-                    className="inline-flex h-12 items-center justify-center rounded-md border border-white/25 px-6 text-sm font-bold text-white hover:border-gold hover:text-gold"
+                    href={`tel:${site.phone}`}
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/25 px-6 text-sm font-bold text-white hover:border-gold hover:text-gold"
                   >
-                    {isZh ? "发送邮件" : "Send Email"}
+                    <Phone className="h-4 w-4" />
+                    {isZh ? "电话咨询" : "Call"}
                   </a>
                 </div>
               </div>
             </div>
-            <div className="bg-[linear-gradient(180deg,#FFFFFF_0%,#F6F8FB_100%)] p-7 md:p-10 lg:p-12">
-              <div className="rounded-md border border-ink/10 bg-white p-6 md:p-8">
-                <div className="text-sm font-semibold text-gold">{isZh ? "公司名称" : "Company"}</div>
+            <div className="bg-white p-6 md:p-8 lg:p-10">
+              <div className="rounded-md border border-ink/10 bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FAFC_100%)] p-6 md:p-8">
+                <div className="text-sm font-semibold text-gold">{isZh ? "公司信息" : "Company Information"}</div>
                 <h3 className="mt-2 text-2xl font-semibold text-ink md:text-3xl">
                   {isZh ? site.nameZh : site.nameEn}
                 </h3>
-                <div className="mt-8 grid gap-4">
-                  <a href={`tel:${site.phone}`} className="flex gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
+                <div className="mt-8 grid gap-4 md:grid-cols-2">
+                  <a href={`tel:${site.phone}`} className="flex min-h-28 gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-ink text-gold">
                       <Phone className="h-5 w-5" />
                     </span>
@@ -758,7 +779,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                       <span className="mt-1 block text-xl font-semibold text-ink">{site.phone}</span>
                     </span>
                   </a>
-                  <a href={`tel:${site.mobile}`} className="flex gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
+                  <a href={`tel:${site.mobile}`} className="flex min-h-28 gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-ink text-gold">
                       <Headset className="h-5 w-5" />
                     </span>
@@ -767,7 +788,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                       <span className="mt-1 block text-xl font-semibold text-ink">{site.mobile}</span>
                     </span>
                   </a>
-                  <a href={`mailto:${site.email}`} className="flex gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
+                  <a href={`mailto:${site.email}`} className="flex min-h-28 gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-ink text-gold">
                       <Mail className="h-5 w-5" />
                     </span>
@@ -776,19 +797,25 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                       <span className="mt-1 block break-words text-xl font-semibold text-ink">{site.email}</span>
                     </span>
                   </a>
-                  <div className="flex gap-4 rounded-md border border-ink/10 p-4">
+                  <div className="flex min-h-28 gap-4 rounded-md border border-ink/10 p-4">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-ink text-gold">
                       <MapPin className="h-5 w-5" />
                     </span>
                     <span>
-                      <span className="block text-sm text-steel">{isZh ? "服务区域" : "Location"}</span>
+                      <span className="block text-sm text-steel">{isZh ? "公司地址" : "Address"}</span>
                       <span className="mt-1 block text-xl font-semibold text-ink">{isZh ? site.addressZh : site.addressEn}</span>
                     </span>
                   </div>
                 </div>
+                <div className="mt-6 rounded-md bg-ink px-5 py-4 text-sm leading-7 text-white/76">
+                  {isZh
+                    ? "建议您在咨询时提供产品名称、使用场景、数量、交付地区和证书要求，我们可以更快判断规格和供货方案。"
+                    : "For faster support, include product name, use case, quantity, delivery location, and certificate requirements."}
+                </div>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 
