@@ -183,7 +183,7 @@ export const featuredProducts = [
     tagEn: "Industrial Safety",
     nameZh: "MSA 4合1气体检测仪",
     nameEn: "MSA 4-Gas Detector",
-    imageUrl: "https://images.pexels.com/photos/4488668/pexels-photo-4488668.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    imageUrl: "https://assetlibrary.msasafety.com/transform/catalogthumb/1b85f2e0-076b-414d-bca8-e5957b323be5/ALTAIR4XRMultigasDetector_000080001600001026_US",
     descZh: "适用于有限空间、石化、制药和仓储作业的氧气、可燃气及有毒气体检测。",
     descEn: "For oxygen, combustible gas, and toxic gas detection in confined spaces, petrochemical, pharmaceutical, and warehousing operations."
   }
