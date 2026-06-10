@@ -83,6 +83,7 @@ model Product {
   sourceUrl   String?
   sourceDocument String?
   imageSourceUrl String?
+  images      Json?
   status      String          @default("DRAFT")
   categoryId  String
   category    ProductCategory @relation(fields: [categoryId], references: [id])

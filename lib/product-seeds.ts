@@ -1,15 +1,22 @@
-import type { ProductStoredRecord } from "@/lib/db";
+import type { ProductRecord, ProductStoredRecord } from "@/lib/db";
 
 const now = "2026-06-10T08:00:00.000Z";
 
 function product(
-  input: Omit<ProductStoredRecord, "createdAt" | "updatedAt" | "status" | "referencePrice" | "imageUrl">
+  input: Omit<ProductStoredRecord, "createdAt" | "updatedAt" | "status" | "referencePrice" | "imageUrl" | "images"> & {
+    imageUrl?: string;
+    images?: string[];
+    status?: ProductRecord["status"];
+  }
 ): ProductStoredRecord {
+  const images = input.images || (input.imageUrl ? [input.imageUrl] : []);
+
   return {
     ...input,
     referencePrice: "询价为准",
-    imageUrl: "",
-    status: "DRAFT",
+    imageUrl: input.imageUrl || images[0] || "",
+    images,
+    status: input.status || "DRAFT",
     createdAt: now,
     updatedAt: now
   };
@@ -68,17 +75,22 @@ export const productSeeds: ProductStoredRecord[] = [
     id: 4,
     categoryId: 1,
     brand: "3M",
-    sku: "9324CN+",
-    nameZh: "9324CN+ 防颗粒物口罩",
-    nameEn: "9324CN+ Particulate Respirator",
-    summaryZh: "用于防护多种作业产生的颗粒物，同时符合欧洲 FFP2 和中国 KN95 标准；可折叠，适合湿热环境或长时间重体力劳动使用。",
-    summaryEn: "Foldable particulate respirator meeting European FFP2 and China KN95 standards.",
+    sku: "9334CN+",
+    nameZh: "9334CN+ 防颗粒物口罩",
+    nameEn: "9334CN+ Particulate Respirator",
+    summaryZh: "用于对高毒颗粒物及焊接作业时金属烟的防护，过滤效率 99% 以上；可折叠，适合湿热环境或长时间重体力劳动使用。",
+    summaryEn: "Foldable FFP3 particulate respirator for high-toxicity particles and welding metal fumes.",
     subcategoryZh: "Aura 系列防颗粒物口罩",
     subcategoryEn: "Aura particulate respirator",
-    specs: "认证：中国 LA GB2626-2019 KN95；欧洲 EN 149:2001+A1:2009 FFP2\n包装：10个/盒，12盒/箱=120个\n状态：草稿，待核对单品高清图后发布",
+    specs: "认证：中国 LA GB2626-2019 KN95；欧洲 EN 149:2001+A1:2009 FFP3\n包装：10个/盒，12盒/箱=120个\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.3m.com.cn/3M/zh_CN/company-cn/",
     sourceDocument: "3M个人安全防护产品目录2025版，第9页",
-    imageSourceUrl: "PDF第9页，待裁切单品高清图"
+    imageSourceUrl: "PDF第9页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/3m-9334cn-plus.jpg",
+    images: [
+      "/product-images/featured/3m-9334cn-plus.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 5,
@@ -190,7 +202,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "尺码：S\n颜色：黑色\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.3m.com.cn/3M/zh_CN/company-cn/",
     sourceDocument: "3M个人安全防护产品目录2025版，第128页",
-    imageSourceUrl: "PDF第128页，待裁切单品高清图"
+    imageSourceUrl: "PDF第128页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/3m-exofit-light-1114189.jpg",
+    images: [
+      "/product-images/featured/3m-exofit-light-1114189.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 12,
@@ -206,7 +223,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "尺码：M\n颜色：黑色\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.3m.com.cn/3M/zh_CN/company-cn/",
     sourceDocument: "3M个人安全防护产品目录2025版，第128页",
-    imageSourceUrl: "PDF第128页，待裁切单品高清图"
+    imageSourceUrl: "PDF第128页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/3m-exofit-light-1114190.jpg",
+    images: [
+      "/product-images/featured/3m-exofit-light-1114190.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 13,
@@ -222,7 +244,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "尺码：L\n颜色：黑色\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.3m.com.cn/3M/zh_CN/company-cn/",
     sourceDocument: "3M个人安全防护产品目录2025版，第128页",
-    imageSourceUrl: "PDF第128页，待裁切单品高清图"
+    imageSourceUrl: "PDF第128页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/3m-exofit-light-1114191.jpg",
+    images: [
+      "/product-images/featured/3m-exofit-light-1114191.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 14,
@@ -238,7 +265,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "尺码：S\n颜色：黑灰色\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.3m.com.cn/3M/zh_CN/company-cn/",
     sourceDocument: "3M个人安全防护产品目录2025版，第128页",
-    imageSourceUrl: "PDF第128页，待裁切单品高清图"
+    imageSourceUrl: "PDF第128页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/3m-exofit-light-1103587.jpg",
+    images: [
+      "/product-images/featured/3m-exofit-light-1103587.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 15,
@@ -350,7 +382,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "镜架及镜腿：黑色\n镜片：透明\n防刮擦：是\n防雾：加强\n使用环境：室内\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.honeywell.com.cn/products-services/building-technologies/fire",
     sourceDocument: "霍尼韦尔 PPE综合样本最新，第21页",
-    imageSourceUrl: "PDF第21页，待裁切单品高清图"
+    imageSourceUrl: "PDF第21页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/honeywell-svp-otg-100005.jpg",
+    images: [
+      "/product-images/featured/honeywell-svp-otg-100005.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 22,
@@ -366,7 +403,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "镜片：透明\n防刮擦：是\n防雾：是\n使用环境：室内\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.honeywell.com.cn/products-services/building-technologies/fire",
     sourceDocument: "霍尼韦尔 PPE综合样本最新，第21页",
-    imageSourceUrl: "PDF第21页，待裁切单品高清图"
+    imageSourceUrl: "PDF第21页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/honeywell-s99-s99100cn.jpg",
+    images: [
+      "/product-images/featured/honeywell-s99-s99100cn.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 23,
@@ -398,7 +440,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "产品描述：透明镜身/布质头带/镜片防雾\n镜片：透明 PC 镜片\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.honeywell.com.cn/products-services/building-technologies/fire",
     sourceDocument: "霍尼韦尔 PPE综合样本最新，第30页",
-    imageSourceUrl: "PDF第30页，待裁切单品高清图"
+    imageSourceUrl: "PDF第30页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/honeywell-lg200a-200500.jpg",
+    images: [
+      "/product-images/featured/honeywell-lg200a-200500.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 25,
@@ -414,7 +461,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "镜架及头带：蓝灰色本体，织物头带\n防雾：Hydroshield 超强\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.honeywell.com.cn/products-services/building-technologies/fire",
     sourceDocument: "霍尼韦尔 PPE综合样本最新，第31页",
-    imageSourceUrl: "PDF第31页，待裁切单品高清图"
+    imageSourceUrl: "PDF第31页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/honeywell-duramaxx-1017750pro.jpg",
+    images: [
+      "/product-images/featured/honeywell-duramaxx-1017750pro.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 26,
@@ -430,7 +482,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "尺码：M/L\n符合标准：EN361:2002、EN358:1999、EN1497:2007、GB6095、LA认证\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.honeywell.com.cn/products-services/building-technologies/fire",
     sourceDocument: "霍尼韦尔 PPE综合样本最新，第112页",
-    imageSourceUrl: "PDF第112页，待裁切单品高清图"
+    imageSourceUrl: "PDF第112页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/honeywell-aircore-h2-ach2w80100ml.jpg",
+    images: [
+      "/product-images/featured/honeywell-aircore-h2-ach2w80100ml.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 27,
@@ -558,7 +615,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "产品描述：热塑材料，中号\n标准：GB2890、NIOSH\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.msasafety.com.cn/",
     sourceDocument: "MSA_梅思安_综合样本_Rev2024_CN，第7页",
-    imageSourceUrl: "PDF第7页，待裁切单品高清图"
+    imageSourceUrl: "PDF第7页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/msa-advantage-3100-10147997.jpg",
+    images: [
+      "/product-images/featured/msa-advantage-3100-10147997.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 35,
@@ -590,7 +652,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "气瓶：北京天海 6.8L，30MPa\n面罩：G1 全面罩 Fix-PTC，中号，网状头带\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.msasafety.com.cn/",
     sourceDocument: "MSA_梅思安_综合样本_Rev2024_CN，第13页",
-    imageSourceUrl: "PDF第13页，待裁切单品高清图"
+    imageSourceUrl: "PDF第13页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/msa-m8-1800-10240493.jpg",
+    images: [
+      "/product-images/featured/msa-m8-1800-10240493.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 37,
@@ -622,7 +689,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "气瓶：北京天海 6.8L，30MPa\n减压器：PR18C\n面罩：G1 面罩 Fix-PTC，中号，网状头带\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.msasafety.com.cn/",
     sourceDocument: "MSA_梅思安_综合样本_Rev2024_CN，第14页",
-    imageSourceUrl: "PDF第14页，待裁切单品高清图"
+    imageSourceUrl: "PDF第14页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/msa-m8-2800-10241461.jpg",
+    images: [
+      "/product-images/featured/msa-m8-2800-10241461.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 39,
@@ -670,7 +742,12 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "通讯：HART、Modbus RS485、无线 HART\n特点：OLED 显示、触摸屏、TruCal 智能传感技术\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.msasafety.com.cn/",
     sourceDocument: "MSA_梅思安_综合样本_Rev2024_CN，第79页",
-    imageSourceUrl: "PDF第79页，待裁切单品高清图"
+    imageSourceUrl: "PDF第79页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/msa-ultima-x5000.jpg",
+    images: [
+      "/product-images/featured/msa-ultima-x5000.jpg"
+    ],
+    status: "PUBLISHED"
   }),
   product({
     id: 42,
@@ -734,6 +811,11 @@ export const productSeeds: ProductStoredRecord[] = [
     specs: "典型响应时间：5秒\n最远检测距离：70米\n认证：ATEX/IECEx、CSA、FM、UL、CCC、SIL3\n状态：草稿，待核对单品高清图后发布",
     sourceUrl: "https://www.msasafety.com.cn/",
     sourceDocument: "MSA_梅思安_综合样本_Rev2024_CN，第81页",
-    imageSourceUrl: "PDF第81页，待裁切单品高清图"
+    imageSourceUrl: "PDF第81页，待裁切单品高清图",
+    imageUrl: "/product-images/featured/msa-flamegard-5-msir.jpg",
+    images: [
+      "/product-images/featured/msa-flamegard-5-msir.jpg"
+    ],
+    status: "PUBLISHED"
   })
 ];

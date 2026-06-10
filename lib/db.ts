@@ -38,6 +38,7 @@ export type ProductRecord = {
   sourceDocument: string;
   imageSourceUrl: string;
   imageUrl: string;
+  images: string[];
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   createdAt: string;
   updatedAt: string;
@@ -59,6 +60,7 @@ export type ProductInput = {
   sourceDocument: string;
   imageSourceUrl: string;
   imageUrl: string;
+  images?: string[];
   status: ProductRecord["status"];
 };
 
@@ -140,7 +142,8 @@ function normalizeStore(store: Partial<Store>): Store {
     sourceUrl: product.sourceUrl || "",
     sourceDocument: product.sourceDocument || "",
     imageSourceUrl: product.imageSourceUrl || "",
-    imageUrl: product.imageUrl || ""
+    imageUrl: product.imageUrl || "",
+    images: product.images || (product.imageUrl ? [product.imageUrl] : [])
   }));
 
   const inquiries = (store.inquiries || []).map((inquiry) => ({
@@ -286,6 +289,7 @@ export function createProduct(input: ProductInput) {
     sourceDocument: input.sourceDocument,
     imageSourceUrl: input.imageSourceUrl,
     imageUrl: input.imageUrl,
+    images: input.images || (input.imageUrl ? [input.imageUrl] : []),
     status: input.status,
     createdAt: now,
     updatedAt: now

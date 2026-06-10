@@ -34,6 +34,8 @@ export default function ProductDetailPage({ params }: { params: { locale: Locale
   const name = isZh ? product.nameZh : product.nameEn || product.nameZh;
   const summary = isZh ? product.summaryZh || product.summaryEn : product.summaryEn || product.summaryZh;
   const specs = parseSpecs(product.specs);
+  const galleryImages = Array.from(new Set([product.imageUrl, ...(product.images || [])].filter(Boolean)));
+  const heroImage = galleryImages[0] || fallbackImage;
 
   return (
     <main className="min-h-screen bg-white">
@@ -88,8 +90,19 @@ export default function ProductDetailPage({ params }: { params: { locale: Locale
           <div className="overflow-hidden rounded-md border border-ink/10 bg-ink shadow-soft">
             <div
               className="aspect-[4/3] bg-cover bg-center"
-              style={{ backgroundImage: `url(${product.imageUrl || fallbackImage})` }}
+              style={{ backgroundImage: `url(${heroImage})` }}
             />
+            {galleryImages.length > 1 ? (
+              <div className="grid grid-cols-3 gap-2 bg-white p-2">
+                {galleryImages.slice(1, 4).map((image) => (
+                  <div
+                    key={image}
+                    className="aspect-[4/3] rounded-sm bg-mist bg-contain bg-center bg-no-repeat"
+                    style={{ backgroundImage: `url(${image})` }}
+                  />
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
