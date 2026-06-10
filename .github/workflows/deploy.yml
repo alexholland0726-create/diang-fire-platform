@@ -55,6 +55,42 @@ jobs:
           kill $HEARTBEAT_PID >/dev/null 2>&1 || true
           pm2 restart diang-fire-platform
           pm2 save
+          if command -v nginx >/dev/null 2>&1 || [ -x /www/server/nginx/sbin/nginx ]; then
+            NGINX_BIN="$(command -v nginx || true)"
+            if [ -z "$NGINX_BIN" ] && [ -x /www/server/nginx/sbin/nginx ]; then
+              NGINX_BIN="/www/server/nginx/sbin/nginx"
+            fi
+            EXISTING_CONF="$(grep -Rsl "server_name .*da-fire.com" /www/server/panel/vhost/nginx /etc/nginx/conf.d /etc/nginx/sites-enabled 2>/dev/null | head -n 1 || true)"
+            if [ -n "$EXISTING_CONF" ]; then
+              NGINX_CONF="$EXISTING_CONF"
+            elif [ -d /www/server/panel/vhost/nginx ]; then
+              NGINX_CONF="/www/server/panel/vhost/nginx/diang-fire-platform.conf"
+            else
+              NGINX_CONF="/etc/nginx/conf.d/diang-fire-platform.conf"
+            fi
+            cp "$NGINX_CONF" "$NGINX_CONF.bak.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
+            cat > "$NGINX_CONF" <<'NGINX'
+          server {
+            listen 80;
+            server_name da-fire.com www.da-fire.com 116.62.231.113;
+            client_max_body_size 50m;
+
+            location / {
+              proxy_pass http://127.0.0.1:3000;
+              proxy_http_version 1.1;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
+          }
+          NGINX
+            "$NGINX_BIN" -t
+            "$NGINX_BIN" -s reload
+          fi
           sleep 3
           curl -fsS http://127.0.0.1:3000/zh | grep -E "装备入口|Equipment Entry"
+          curl -fsS -H "Host: da-fire.com" http://127.0.0.1/zh | grep -E "装备入口|Equipment Entry"
           EOF
