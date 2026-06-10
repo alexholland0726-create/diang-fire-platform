@@ -92,5 +92,12 @@ jobs:
           fi
           sleep 3
           curl -fsS http://127.0.0.1:3000/zh | grep -E "装备入口|Equipment Entry"
-          curl -fsS -H "Host: da-fire.com" http://127.0.0.1/zh | grep -E "装备入口|Equipment Entry"
+          echo "===== nginx diagnostics ====="
+          whoami
+          (command -v nginx || true)
+          ([ -x /www/server/nginx/sbin/nginx ] && echo /www/server/nginx/sbin/nginx || true)
+          (ss -ltnp 2>/dev/null | grep -E ':80|:3000' || true)
+          (grep -Rsn "da-fire.com" /www/server/panel/vhost/nginx /etc/nginx/conf.d /etc/nginx/sites-enabled 2>/dev/null || true)
+          (curl -i -H "Host: da-fire.com" http://127.0.0.1/zh 2>/dev/null | head -n 40 || true)
+          (curl -fsS -H "Host: da-fire.com" http://127.0.0.1/zh | grep -E "装备入口|Equipment Entry" || true)
           EOF
