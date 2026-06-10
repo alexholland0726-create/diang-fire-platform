@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -26,6 +26,9 @@ type Product = {
   subcategoryEn: string;
   specs: string;
   referencePrice: string;
+  sourceUrl: string;
+  sourceDocument: string;
+  imageSourceUrl: string;
   imageUrl: string;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   updatedAt: string;
@@ -44,6 +47,9 @@ type ProductForm = {
   subcategoryEn: string;
   specs: string;
   referencePrice: string;
+  sourceUrl: string;
+  sourceDocument: string;
+  imageSourceUrl: string;
   imageUrl: string;
   status: Product["status"];
 };
@@ -66,6 +72,9 @@ const emptyForm: ProductForm = {
   subcategoryEn: "",
   specs: "",
   referencePrice: "",
+  sourceUrl: "",
+  sourceDocument: "",
+  imageSourceUrl: "",
   imageUrl: "",
   status: "DRAFT"
 };
@@ -105,7 +114,15 @@ export function AdminProductsManager() {
     }
 
     return products.filter((product) =>
-      [product.nameZh, product.nameEn, product.brand, product.sku, product.categoryNameZh]
+      [
+        product.nameZh,
+        product.nameEn,
+        product.brand,
+        product.sku,
+        product.categoryNameZh,
+        product.subcategoryZh,
+        product.sourceDocument
+      ]
         .join(" ")
         .toLowerCase()
         .includes(keyword)
@@ -128,7 +145,7 @@ export function AdminProductsManager() {
       }
 
       if (!categoryResponse.ok || !productResponse.ok) {
-        throw new Error("鍔犺浇浜у搧鏁版嵁澶辫触");
+        throw new Error("加载产品数据失败");
       }
 
       const categoryData = (await categoryResponse.json()) as { categories: Category[] };
@@ -144,7 +161,7 @@ export function AdminProductsManager() {
         }));
       }
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "鍔犺浇澶辫触");
+      setError(loadError instanceof Error ? loadError.message : "加载失败");
     } finally {
       setLoading(false);
     }
@@ -186,6 +203,9 @@ export function AdminProductsManager() {
       subcategoryEn: product.subcategoryEn,
       specs: product.specs,
       referencePrice: product.referencePrice || "",
+      sourceUrl: product.sourceUrl || "",
+      sourceDocument: product.sourceDocument || "",
+      imageSourceUrl: product.imageSourceUrl || "",
       imageUrl: product.imageUrl,
       status: product.status
     });
@@ -210,13 +230,13 @@ export function AdminProductsManager() {
       const result = (await response.json()) as { url?: string; error?: string };
 
       if (!response.ok || !result.url) {
-        throw new Error(result.error ?? "鍥剧墖涓婁紶澶辫触");
+        throw new Error(result.error ?? "图片上传失败");
       }
 
       updateForm("imageUrl", result.url);
-      setMessage("鍥剧墖宸蹭笂浼狅紝璇疯寰椾繚瀛樹骇鍝?);
+      setMessage("图片已上传，请记得保存产品。");
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "鍥剧墖涓婁紶澶辫触");
+      setError(uploadError instanceof Error ? uploadError.message : "图片上传失败");
     } finally {
       setUploading(false);
     }
@@ -237,15 +257,15 @@ export function AdminProductsManager() {
       const result = (await response.json()) as { category?: Category; error?: string };
 
       if (!response.ok || !result.category) {
-        throw new Error(result.error ?? "鍒嗙被淇濆瓨澶辫触");
+        throw new Error(result.error ?? "分类保存失败");
       }
 
       setCategories((current) => [...current, result.category as Category]);
       setForm((current) => ({ ...current, categoryId: String(result.category?.id) }));
       setCategoryForm(emptyCategoryForm);
-      setMessage("鍒嗙被宸叉柊澧?);
+      setMessage("分类已新增。");
     } catch (categoryError) {
-      setError(categoryError instanceof Error ? categoryError.message : "鍒嗙被淇濆瓨澶辫触");
+      setError(categoryError instanceof Error ? categoryError.message : "分类保存失败");
     } finally {
       setSavingCategory(false);
     }
@@ -274,6 +294,9 @@ export function AdminProductsManager() {
           subcategoryEn: form.subcategoryEn,
           specs: form.specs,
           referencePrice: form.referencePrice,
+          sourceUrl: form.sourceUrl,
+          sourceDocument: form.sourceDocument,
+          imageSourceUrl: form.imageSourceUrl,
           imageUrl: form.imageUrl,
           status: form.status
         })
@@ -282,21 +305,21 @@ export function AdminProductsManager() {
       const result = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        throw new Error(result.error ?? "淇濆瓨澶辫触");
+        throw new Error(result.error ?? "保存失败");
       }
 
-      setMessage(form.id ? "浜у搧宸叉洿鏂? : "浜у搧宸叉坊鍔?);
+      setMessage(form.id ? "产品已更新。" : "产品已添加。");
       resetForm();
       await loadData();
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "淇濆瓨澶辫触");
+      setError(saveError instanceof Error ? saveError.message : "保存失败");
     } finally {
       setSaving(false);
     }
   }
 
   async function deleteProduct(product: Product) {
-    const confirmed = window.confirm(`纭畾鍒犻櫎銆?{product.nameZh}銆嶅悧锛焋);
+    const confirmed = window.confirm(`确定删除「${product.nameZh}」吗？`);
 
     if (!confirmed) {
       return;
@@ -311,11 +334,11 @@ export function AdminProductsManager() {
 
     if (!response.ok) {
       const result = (await response.json()) as { error?: string };
-      setError(result.error ?? "鍒犻櫎澶辫触");
+      setError(result.error ?? "删除失败");
       return;
     }
 
-    setMessage("浜у搧宸插垹闄?);
+    setMessage("产品已删除。");
     await loadData();
   }
 
@@ -324,15 +347,17 @@ export function AdminProductsManager() {
       <section className="rounded-md bg-white p-6 shadow-soft">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-ink">{form.id ? "缂栬緫浜у搧" : "娣诲姞浜у搧"}</h2>
-            <p className="mt-1 text-sm text-steel">浜у搧绗竴鐗堜笉鏄剧ず浠锋牸锛屽彧寮曞瀹㈡埛鎻愪氦璇环銆?/p>
+            <h2 className="text-xl font-semibold text-ink">{form.id ? "编辑产品" : "添加产品"}</h2>
+            <p className="mt-1 text-sm text-steel">
+              产品信息必须来自品牌官网、官方目录或厂家资料；未核对来源前先保存为草稿。
+            </p>
           </div>
           {form.id && (
             <button
               type="button"
               onClick={resetForm}
               className="grid h-9 w-9 place-items-center rounded-md border border-ink/10 text-ink"
-              aria-label="鍙栨秷缂栬緫"
+              aria-label="取消编辑"
             >
               <X className="h-4 w-4" />
             </button>
@@ -342,15 +367,15 @@ export function AdminProductsManager() {
         <form className="mt-6 grid gap-3 rounded-md border border-ink/10 bg-mist p-4" onSubmit={saveCategory}>
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-sm font-semibold text-ink">鏂板浜у搧鍒嗙被</div>
-              <div className="mt-1 text-xs text-steel">鍚庣画涓婁紶鏂扮郴鍒椾骇鍝佹椂锛屽厛鍦ㄨ繖閲屽缓绔嬪垎绫汇€?/div>
+              <div className="text-sm font-semibold text-ink">新增产品分类</div>
+              <div className="mt-1 text-xs text-steel">上传新系列产品前，先在这里建立分类。</div>
             </div>
             <button
               disabled={savingCategory || !categoryForm.nameZh.trim()}
               className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md bg-ink px-3 text-xs font-semibold text-white disabled:opacity-50"
             >
               <Plus className="h-4 w-4" />
-              {savingCategory ? "淇濆瓨涓?.." : "淇濆瓨鍒嗙被"}
+              {savingCategory ? "保存中..." : "保存分类"}
             </button>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
@@ -358,7 +383,7 @@ export function AdminProductsManager() {
               value={categoryForm.nameZh}
               onChange={(event) => updateCategoryForm("nameZh", event.target.value)}
               className="h-10 rounded-md border border-ink/10 bg-white px-3 text-sm outline-none focus:border-gold"
-              placeholder="涓枃鍒嗙被鍚?
+              placeholder="中文分类名"
             />
             <input
               value={categoryForm.nameEn}
@@ -370,14 +395,14 @@ export function AdminProductsManager() {
               value={categoryForm.slug}
               onChange={(event) => updateCategoryForm("slug", event.target.value)}
               className="h-10 rounded-md border border-ink/10 bg-white px-3 text-sm outline-none focus:border-gold"
-              placeholder="URL鏍囪瘑锛屽彲閫?
+              placeholder="URL标识，可选"
             />
           </div>
         </form>
 
         <form className="mt-6 grid gap-4" onSubmit={saveProduct}>
           <label className="grid gap-2 text-sm font-medium text-ink">
-            浜у搧鍒嗙被
+            产品分类
             <select
               value={form.categoryId}
               onChange={(event) => updateForm("categoryId", event.target.value)}
@@ -391,14 +416,15 @@ export function AdminProductsManager() {
               ))}
             </select>
           </label>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2 text-sm font-medium text-ink">
-              瀛愮骇鍒嗙被
+              子级分类
               <input
                 value={form.subcategoryZh}
                 onChange={(event) => updateForm("subcategoryZh", event.target.value)}
                 className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
-                placeholder="渚嬪锛氱牬鎷嗗伐鍏?
+                placeholder="例如：防护眼镜"
               />
             </label>
             <label className="grid gap-2 text-sm font-medium text-ink">
@@ -407,19 +433,19 @@ export function AdminProductsManager() {
                 value={form.subcategoryEn}
                 onChange={(event) => updateForm("subcategoryEn", event.target.value)}
                 className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
-                placeholder="Forcible entry tools"
+                placeholder="Safety glasses"
               />
             </label>
           </div>
 
           <label className="grid gap-2 text-sm font-medium text-ink">
-            鍝佺墝
+            品牌
             <select
               value={form.brand}
               onChange={(event) => updateForm("brand", event.target.value)}
               className="h-11 rounded-md border border-ink/10 bg-white px-3 outline-none focus:border-gold"
             >
-              <option value="">璇烽€夋嫨鍝佺墝</option>
+              <option value="">请选择品牌</option>
               {brandOptions.map((brand) => (
                 <option key={brand} value={brand}>
                   {brand}
@@ -429,79 +455,113 @@ export function AdminProductsManager() {
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-ink">
-            涓枃浜у搧鍚嶇О
+            中文产品名称
             <input
               value={form.nameZh}
               onChange={(event) => updateForm("nameZh", event.target.value)}
               className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
-              placeholder="渚嬪锛氭鍘嬪紡绌烘皵鍛煎惛鍣?
+              placeholder="必须与官方资料一致"
               required
             />
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-ink">
-            鑻辨枃浜у搧鍚嶇О
+            英文产品名称
             <input
               value={form.nameEn}
               onChange={(event) => updateForm("nameEn", event.target.value)}
               className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
-              placeholder="Positive Pressure SCBA"
+              placeholder="Use official English name when available"
             />
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2 text-sm font-medium text-ink">
-              SKU/鍨嬪彿
+              SKU/型号/订货号
               <input
                 value={form.sku}
                 onChange={(event) => updateForm("sku", event.target.value)}
                 className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
-                placeholder="DA-SCBA-001"
+                placeholder="必须与官方资料一致"
               />
             </label>
 
             <label className="grid gap-2 text-sm font-medium text-ink">
-              鐘舵€?
+              状态
               <select
                 value={form.status}
                 onChange={(event) => updateForm("status", event.target.value)}
                 className="h-11 rounded-md border border-ink/10 bg-white px-3 outline-none focus:border-gold"
               >
-                <option value="DRAFT">鑽夌</option>
-                <option value="PUBLISHED">宸蹭笂鏋?/option>
-                <option value="ARCHIVED">宸蹭笅鏋?/option>
+                <option value="DRAFT">草稿</option>
+                <option value="PUBLISHED">已上架</option>
+                <option value="ARCHIVED">已下架</option>
               </select>
             </label>
           </div>
 
           <label className="grid gap-2 text-sm font-medium text-ink">
-            鍙傝€冧环/鐩綍浠?
+            参考价/目录价
             <input
               value={form.referencePrice}
               onChange={(event) => updateForm("referencePrice", event.target.value)}
               className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
-              placeholder="渚嬪锛氳浠蜂负鍑?/ 鐩綍浠?楼280 / 鍙傝€冧环 楼1,200"
+              placeholder="例如：询价为准 / 参考价 ¥1,200"
             />
-            <span className="text-xs font-normal text-steel">
-              鍝佺墝浜у搧閫氬父鏈夋姌鎵ｏ紝瀹樼綉鍙～鍐欏弬鑰冧环锛屾渶缁堟垚浜や互鎶ヤ环涓哄噯銆?
-            </span>
+            <span className="text-xs font-normal text-steel">品牌产品通常有折扣，最终成交以报价为准。</span>
           </label>
 
+          <div className="grid gap-4 rounded-md border border-ink/10 bg-mist p-4">
+            <div>
+              <div className="text-sm font-semibold text-ink">来源追溯</div>
+              <p className="mt-1 text-xs leading-5 text-steel">
+                正式上架前必须填写官方来源。官网产品页优先；PDF 目录请写清文件名和页码。
+              </p>
+            </div>
+            <label className="grid gap-2 text-sm font-medium text-ink">
+              官方产品/资料链接
+              <input
+                value={form.sourceUrl}
+                onChange={(event) => updateForm("sourceUrl", event.target.value)}
+                className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
+                placeholder="https://..."
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-medium text-ink">
+              资料来源备注
+              <input
+                value={form.sourceDocument}
+                onChange={(event) => updateForm("sourceDocument", event.target.value)}
+                className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
+                placeholder="例如：3M个人安全防护产品目录2025版，第7页"
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-medium text-ink">
+              图片来源链接/备注
+              <input
+                value={form.imageSourceUrl}
+                onChange={(event) => updateForm("imageSourceUrl", event.target.value)}
+                className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
+                placeholder="官网图片链接、PDF页码或厂家素材来源"
+              />
+            </label>
+          </div>
+
           <label className="grid gap-2 text-sm font-medium text-ink">
-            浜у搧鍥剧墖
+            产品图片
             <div className="rounded-md border border-dashed border-ink/20 bg-mist p-3">
               {form.imageUrl ? (
                 <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-md bg-white">
-                  <Image src={form.imageUrl} alt={form.nameZh || "浜у搧鍥剧墖"} fill className="object-cover" />
+                  <Image src={form.imageUrl} alt={form.nameZh || "产品图片"} fill className="object-cover" />
                 </div>
               ) : (
                 <div className="mb-3 grid aspect-[4/3] place-items-center rounded-md bg-white text-sm text-steel">
-                  鏆傛湭涓婁紶鍥剧墖
+                  暂未上传图片
                 </div>
               )}
               <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-md bg-ink px-4 text-sm font-semibold text-white">
                 <ImagePlus className="h-4 w-4" />
-                {uploading ? "涓婁紶涓?.." : "涓婁紶鍥剧墖"}
+                {uploading ? "上传中..." : "上传图片"}
                 <input
                   type="file"
                   accept="image/*"
@@ -520,17 +580,17 @@ export function AdminProductsManager() {
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-ink">
-            涓枃绠€浠?
+            中文简介
             <textarea
               value={form.summaryZh}
               onChange={(event) => updateForm("summaryZh", event.target.value)}
               className="min-h-24 rounded-md border border-ink/10 p-3 outline-none focus:border-gold"
-              placeholder="閫傜敤鍦烘櫙銆佹牳蹇冨崠鐐广€佽璇佷俊鎭€侀噰璐鏄?.."
+              placeholder="适用场景、核心卖点、认证信息、采购说明。不要夸大，不写未核实信息。"
             />
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-ink">
-            鑻辨枃绠€浠?
+            英文简介
             <textarea
               value={form.summaryEn}
               onChange={(event) => updateForm("summaryEn", event.target.value)}
@@ -539,12 +599,12 @@ export function AdminProductsManager() {
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-ink">
-            鍙傛暟/澶囨敞
+            参数/备注
             <textarea
               value={form.specs}
               onChange={(event) => updateForm("specs", event.target.value)}
               className="min-h-24 rounded-md border border-ink/10 p-3 outline-none focus:border-gold"
-              placeholder="鍙～鍐欒鏍笺€佽璇併€佸寘瑁呫€佷緵鏂逛俊鎭瓑銆?
+              placeholder="规格、包装、认证、选型注意事项等。"
             />
           </label>
 
@@ -557,7 +617,7 @@ export function AdminProductsManager() {
             className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-ink px-5 text-sm font-bold text-white disabled:opacity-60"
           >
             <Save className="h-4 w-4" />
-            {saving ? "淇濆瓨涓?.." : form.id ? "淇濆瓨淇敼" : "娣诲姞浜у搧"}
+            {saving ? "保存中..." : form.id ? "保存修改" : "添加产品"}
           </button>
         </form>
       </section>
@@ -565,15 +625,15 @@ export function AdminProductsManager() {
       <section className="rounded-md bg-white p-6 shadow-soft">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h2 className="text-xl font-semibold text-ink">浜у搧鍒楄〃</h2>
-            <p className="mt-1 text-sm text-steel">鍏?{products.length} 涓骇鍝?/p>
+            <h2 className="text-xl font-semibold text-ink">产品列表</h2>
+            <p className="mt-1 text-sm text-steel">共 {products.length} 个产品</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               className="h-10 rounded-md border border-ink/10 px-3 text-sm outline-none focus:border-gold"
-              placeholder="鎼滅储浜у搧/鍨嬪彿"
+              placeholder="搜索产品/品牌/型号/来源"
             />
             <button
               type="button"
@@ -581,14 +641,14 @@ export function AdminProductsManager() {
               className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-ink/10 px-4 text-sm font-semibold text-ink"
             >
               <RefreshCw className="h-4 w-4" />
-              鍒锋柊
+              刷新
             </button>
           </div>
         </div>
 
         {loading ? (
           <div className="mt-6 rounded-md border border-ink/10 p-8 text-center text-sm text-steel">
-            姝ｅ湪鍔犺浇浜у搧...
+            正在加载产品...
           </div>
         ) : filteredProducts.length ? (
           <div className="mt-6 overflow-hidden rounded-md border border-ink/10">
@@ -601,7 +661,7 @@ export function AdminProductsManager() {
                   {product.imageUrl ? (
                     <Image src={product.imageUrl} alt={product.nameZh} fill className="object-cover" />
                   ) : (
-                    <div className="grid h-full place-items-center text-xs text-steel">鏃犲浘鐗?/div>
+                    <div className="grid h-full place-items-center text-xs text-steel">无图片</div>
                   )}
                 </div>
                 <div className="min-w-0">
@@ -610,6 +670,11 @@ export function AdminProductsManager() {
                     <span className="rounded-full bg-mist px-2 py-1 text-xs text-steel">
                       {product.categoryNameZh}
                     </span>
+                    {product.subcategoryZh && (
+                      <span className="rounded-full bg-mist px-2 py-1 text-xs text-steel">
+                        {product.subcategoryZh}
+                      </span>
+                    )}
                     {product.brand && (
                       <span className="rounded-full bg-ink px-2 py-1 text-xs font-semibold text-white">
                         {product.brand}
@@ -620,11 +685,18 @@ export function AdminProductsManager() {
                     </span>
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-steel">
-                    {product.summaryZh || "鏆傛棤绠€浠?}
+                    {product.summaryZh || "暂无简介"}
                   </p>
                   <div className="mt-2 text-xs text-steel">
-                    {product.sku ? `鍨嬪彿锛?{product.sku}` : "鏈～鍐欏瀷鍙?}
-                    {product.referencePrice ? ` 锝?鍙傝€冧环锛?{product.referencePrice}` : ""}
+                    {product.sku ? `型号：${product.sku}` : "未填写型号"}
+                    {product.referencePrice ? ` ｜ 参考价：${product.referencePrice}` : ""}
+                  </div>
+                  <div className="mt-2 text-xs text-steel">
+                    {product.sourceDocument || product.sourceUrl ? (
+                      <>来源：{product.sourceDocument || product.sourceUrl}</>
+                    ) : (
+                      <span className="text-ember">未填写来源，不能正式上架</span>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 lg:justify-end">
@@ -634,13 +706,13 @@ export function AdminProductsManager() {
                     className="inline-flex h-9 items-center gap-2 rounded-md border border-ink/10 px-3 text-sm font-semibold text-ink"
                   >
                     <Edit3 className="h-4 w-4" />
-                    缂栬緫
+                    编辑
                   </button>
                   <button
                     type="button"
                     onClick={() => void deleteProduct(product)}
                     className="grid h-9 w-9 place-items-center rounded-md border border-ember/20 text-ember"
-                    aria-label="鍒犻櫎浜у搧"
+                    aria-label="删除产品"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -651,12 +723,11 @@ export function AdminProductsManager() {
         ) : (
           <div className="mt-6 rounded-md border border-dashed border-ink/20 p-8 text-center">
             <Plus className="mx-auto h-8 w-8 text-gold" />
-            <h3 className="mt-4 font-semibold text-ink">鏆傛棤浜у搧</h3>
-            <p className="mt-2 text-sm text-steel">鍦ㄥ乏渚у～鍐欎俊鎭紝娣诲姞绗竴涓骇鍝併€?/p>
+            <h3 className="mt-4 font-semibold text-ink">暂无产品</h3>
+            <p className="mt-2 text-sm text-steel">在左侧填写信息，添加第一个产品。</p>
           </div>
         )}
       </section>
     </div>
   );
 }
-

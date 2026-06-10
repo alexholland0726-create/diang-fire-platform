@@ -33,6 +33,9 @@ export type ProductRecord = {
   subcategoryEn: string;
   specs: string;
   referencePrice: string;
+  sourceUrl: string;
+  sourceDocument: string;
+  imageSourceUrl: string;
   imageUrl: string;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   createdAt: string;
@@ -51,6 +54,9 @@ export type ProductInput = {
   subcategoryEn: string;
   specs: string;
   referencePrice: string;
+  sourceUrl: string;
+  sourceDocument: string;
+  imageSourceUrl: string;
   imageUrl: string;
   status: ProductRecord["status"];
 };
@@ -130,6 +136,9 @@ function normalizeStore(store: Partial<Store>): Store {
     subcategoryEn: product.subcategoryEn || "",
     brand: product.brand || "",
     referencePrice: product.referencePrice || "",
+    sourceUrl: product.sourceUrl || "",
+    sourceDocument: product.sourceDocument || "",
+    imageSourceUrl: product.imageSourceUrl || "",
     imageUrl: product.imageUrl || ""
   }));
 
@@ -272,6 +281,9 @@ export function createProduct(input: ProductInput) {
     subcategoryEn: input.subcategoryEn,
     specs: input.specs,
     referencePrice: input.referencePrice,
+    sourceUrl: input.sourceUrl,
+    sourceDocument: input.sourceDocument,
+    imageSourceUrl: input.imageSourceUrl,
     imageUrl: input.imageUrl,
     status: input.status,
     createdAt: now,
