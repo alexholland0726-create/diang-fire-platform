@@ -343,27 +343,55 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
 
       <section className="relative z-10 -mt-10 px-5 pb-12 md:-mt-14">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-md border border-ink/10 bg-white shadow-soft">
-          <div className="grid lg:grid-cols-[300px_1fr]">
-            <div className="relative bg-ink p-6 text-white md:p-8">
-              <WindowBadge code="H02A" />
-              <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
-                {isZh ? "快速入口" : "Quick Access"}
+          <div className="bg-ink px-5 py-5 text-white md:px-7">
+            <div className="grid gap-5 lg:grid-cols-[1.15fr_1.85fr] lg:items-center">
+              <div>
+                <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
+                  {isZh ? "快速入口" : "Quick Access"}
+                </div>
+                <h2 className="mt-3 text-2xl font-semibold leading-tight md:text-3xl">
+                  {isZh ? "按行业场景进入产品和方案" : "Enter Products and Solutions by Market"}
+                </h2>
               </div>
-              <h2 className="mt-4 text-2xl font-semibold leading-tight">
-                {isZh ? "按应用行业查找装备" : "Find Equipment by Market"}
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-white/64">
-                {isZh
-                  ? "先选择使用场景，再进入产品、资料、询价和服务支持。"
-                  : "Start with the use case, then move into products, documents, quotes, and support."}
-              </p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  {
+                    label: isZh ? "看产品中心" : "View Products",
+                    desc: isZh ? "按分类查看已上架产品资料" : "Browse listed product documents",
+                    href: `/${locale}/products`
+                  },
+                  {
+                    label: isZh ? "提交清单" : "Send List",
+                    desc: isZh ? "把项目需求交给销售跟进" : "Send project needs for follow-up",
+                    href: `/${locale}/inquiry`
+                  },
+                  {
+                    label: isZh ? "按场景选" : "By Scenario",
+                    desc: isZh ? "消防、石化、市政、工业入口" : "Fire, chemical, utility, industrial",
+                    href: `/${locale}/solutions`
+                  }
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="group rounded-md border border-white/12 bg-white/[0.06] px-4 py-3 transition hover:border-gold/70 hover:bg-white/[0.11]"
+                  >
+                    <span className="flex items-center justify-between gap-3 text-sm font-semibold text-white">
+                      {item.label}
+                      <ArrowRight className="h-4 w-4 text-gold transition group-hover:translate-x-1" />
+                    </span>
+                    <span className="mt-2 block text-xs leading-5 text-white/62">{item.desc}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4">
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4">
           {markets.map((market, index) => (
             <Link
               key={market.zh}
               href={`/${locale}/solutions/${market.en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`}
-              className="group relative min-h-[202px] overflow-hidden border-b border-white/10 p-5 text-white transition sm:border-r lg:border-b-0"
+              className="group relative min-h-[224px] overflow-hidden border-b border-white/10 p-5 text-white transition sm:border-r lg:border-b-0 lg:min-h-[238px]"
             >
               <WindowBadge code={`H0${index + 2}`} />
               <div
@@ -382,7 +410,6 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
               </div>
             </Link>
           ))}
-            </div>
           </div>
         </div>
       </section>
