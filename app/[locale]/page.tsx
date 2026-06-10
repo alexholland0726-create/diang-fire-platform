@@ -337,18 +337,17 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
       </section>
 
       <section
-        className="relative z-10 -mt-10 overflow-hidden px-5 pb-10 md:-mt-14 md:pb-14"
-        style={{ minHeight: "clamp(760px, 68vw, 1400px)" }}
+        className="relative z-10 -mt-10 overflow-hidden px-5 pb-8 md:-mt-14 md:pb-10"
       >
         <div
-          className="absolute inset-0 bg-no-repeat opacity-95"
+          className="absolute inset-0 bg-no-repeat opacity-75"
           style={{
             backgroundImage: `url(${secondScreenImage})`,
             backgroundPosition: "top center",
             backgroundSize: "100% auto"
           }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,37,0.88)_0%,rgba(7,20,37,0.44)_22%,rgba(11,23,41,0.30)_56%,rgba(246,248,251,0.94)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,37,0.90)_0%,rgba(7,20,37,0.58)_22%,rgba(11,23,41,0.42)_56%,rgba(246,248,251,0.96)_100%)]" />
         <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(180deg,rgba(7,20,37,0.96)_0%,rgba(7,20,37,0.38)_62%,rgba(7,20,37,0)_100%)]" />
         <div className="industrial-grid absolute inset-0 opacity-12" />
         <div className="relative mx-auto max-w-7xl overflow-hidden rounded-md border border-white/16 bg-ink/64 shadow-[0_28px_80px_rgba(0,0,0,0.30)] backdrop-blur-[1px]">
@@ -421,10 +420,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
           ))}
           </div>
         </div>
-      </section>
-
-      <section className="bg-[linear-gradient(180deg,#F6F8FB_0%,#FFFFFF_100%)] px-5 pb-16 md:pb-24">
-        <div className="mx-auto max-w-7xl">
+        <div className="relative mx-auto mt-6 max-w-7xl md:mt-7">
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="relative overflow-hidden rounded-md border border-ink/10 bg-white p-7 text-ink shadow-soft md:p-9">
               <WindowBadge code="H05A" />
