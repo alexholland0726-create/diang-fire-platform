@@ -1,5 +1,6 @@
 ﻿import fs from "node:fs";
 import path from "node:path";
+import { productSeeds } from "@/lib/product-seeds";
 
 const dataDir = process.env.DIANG_DATA_DIR || path.join(process.cwd(), "data");
 const storePath = path.join(dataDir, "diang-data.json");
@@ -83,7 +84,7 @@ export type InquiryInput = {
   message: string;
 };
 
-type ProductStoredRecord = Omit<ProductRecord, "categorySlug" | "categoryNameZh" | "categoryNameEn">;
+export type ProductStoredRecord = Omit<ProductRecord, "categorySlug" | "categoryNameZh" | "categoryNameEn">;
 
 type Store = {
   nextProductId: number;
@@ -106,10 +107,10 @@ const categorySeeds: ProductCategoryRecord[] = [
 
 function defaultStore(): Store {
   return {
-    nextProductId: 1,
+    nextProductId: Math.max(0, ...productSeeds.map((product) => product.id)) + 1,
     nextInquiryId: 1,
     categories: categorySeeds,
-    products: [],
+    products: productSeeds,
     inquiries: []
   };
 }

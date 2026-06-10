@@ -27,7 +27,7 @@ export default function ProductDetailPage({ params }: { params: { locale: Locale
 
   const product = getProduct(id);
 
-  if (!product || product.status === "ARCHIVED") {
+  if (!product || product.status !== "PUBLISHED") {
     notFound();
   }
 

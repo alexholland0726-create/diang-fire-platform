@@ -72,7 +72,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
   const otherLocale = locale === "zh" ? "en" : "zh";
   const isZh = locale === "zh";
   const categories = listCategories();
-  const visibleProducts = listProducts().filter((product) => product.status !== "ARCHIVED");
+  const visibleProducts = listProducts().filter((product) => product.status === "PUBLISHED");
   const productCategoryCards = productCategories.map((category) => {
     const dbCategory = categories.find((item) => item.slug === category.key);
     const products = dbCategory

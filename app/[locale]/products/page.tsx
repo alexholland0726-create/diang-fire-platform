@@ -29,7 +29,7 @@ export default function ProductsPage({
   const activeCategory = searchParams?.category || "all";
   const activeItem = searchParams?.item?.trim() || "";
   const dbCategories = listCategories();
-  const visibleProducts = listProducts().filter((product) => product.status !== "ARCHIVED");
+  const visibleProducts = listProducts().filter((product) => product.status === "PUBLISHED");
   const categoryCards = productCategories.map((category) => {
     const dbCategory = dbCategories.find((item) => item.slug === category.key);
     const categoryProducts = dbCategory
