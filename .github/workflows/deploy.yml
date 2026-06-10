@@ -55,24 +55,68 @@ jobs:
           kill $HEARTBEAT_PID >/dev/null 2>&1 || true
           pm2 restart diang-fire-platform
           pm2 save
+
           if command -v nginx >/dev/null 2>&1 || [ -x /www/server/nginx/sbin/nginx ]; then
             NGINX_BIN="$(command -v nginx || true)"
             if [ -z "$NGINX_BIN" ] && [ -x /www/server/nginx/sbin/nginx ]; then
               NGINX_BIN="/www/server/nginx/sbin/nginx"
             fi
-            EXISTING_CONF="$(grep -Rsl "server_name .*da-fire.com" /www/server/panel/vhost/nginx /etc/nginx/conf.d /etc/nginx/sites-enabled 2>/dev/null | head -n 1 || true)"
-            if [ -n "$EXISTING_CONF" ]; then
-              NGINX_CONF="$EXISTING_CONF"
+            if [ -f /etc/nginx/conf.d/da-fire.conf ]; then
+              NGINX_CONF="/etc/nginx/conf.d/da-fire.conf"
+            elif [ -f /www/server/panel/vhost/nginx/da-fire.conf ]; then
+              NGINX_CONF="/www/server/panel/vhost/nginx/da-fire.conf"
             elif [ -d /www/server/panel/vhost/nginx ]; then
               NGINX_CONF="/www/server/panel/vhost/nginx/diang-fire-platform.conf"
             else
               NGINX_CONF="/etc/nginx/conf.d/diang-fire-platform.conf"
             fi
+
+            SSL_CERT=""
+            SSL_KEY=""
+            if [ -f "$NGINX_CONF" ]; then
+              SSL_CERT="$(awk '$1=="ssl_certificate" { gsub(/;/, "", $2); print $2; exit }' "$NGINX_CONF" || true)"
+              SSL_KEY="$(awk '$1=="ssl_certificate_key" { gsub(/;/, "", $2); print $2; exit }' "$NGINX_CONF" || true)"
+            fi
+
             cp "$NGINX_CONF" "$NGINX_CONF.bak.$(date +%Y%m%d%H%M%S)" 2>/dev/null || true
-            cat > "$NGINX_CONF" <<'NGINX'
+            cat > "$NGINX_CONF" <<'NGINX_HTTP'
           server {
             listen 80;
-            server_name da-fire.com www.da-fire.com 116.62.231.113;
+            server_name da-fire.com www.da-fire.com;
+            return 301 https://www.da-fire.com$request_uri;
+          }
+          NGINX_HTTP
+
+            if [ -n "$SSL_CERT" ] && [ -n "$SSL_KEY" ] && [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
+              cat >> "$NGINX_CONF" <<NGINX_HTTPS
+          server {
+            listen 443 ssl http2;
+            server_name da-fire.com www.da-fire.com;
+            ssl_certificate $SSL_CERT;
+            ssl_certificate_key $SSL_KEY;
+            client_max_body_size 50m;
+
+            if (\$host = da-fire.com) {
+              return 301 https://www.da-fire.com\$request_uri;
+            }
+
+            location / {
+              proxy_pass http://127.0.0.1:3000;
+              proxy_http_version 1.1;
+              proxy_set_header Host \$host;
+              proxy_set_header X-Real-IP \$remote_addr;
+              proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto \$scheme;
+              proxy_set_header Upgrade \$http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
+          }
+          NGINX_HTTPS
+            else
+              cat >> "$NGINX_CONF" <<'NGINX_FALLBACK'
+          server {
+            listen 80;
+            server_name 116.62.231.113;
             client_max_body_size 50m;
 
             location / {
@@ -86,18 +130,18 @@ jobs:
               proxy_set_header Connection "upgrade";
             }
           }
-          NGINX
+          NGINX_FALLBACK
+            fi
+
             "$NGINX_BIN" -t
             "$NGINX_BIN" -s reload
           fi
+
           sleep 3
           curl -fsS http://127.0.0.1:3000/zh | grep -E "装备入口|Equipment Entry"
-          echo "===== nginx diagnostics ====="
-          whoami
-          (command -v nginx || true)
-          ([ -x /www/server/nginx/sbin/nginx ] && echo /www/server/nginx/sbin/nginx || true)
-          (ss -ltnp 2>/dev/null | grep -E ':80|:3000' || true)
-          (grep -Rsn "da-fire.com" /www/server/panel/vhost/nginx /etc/nginx/conf.d /etc/nginx/sites-enabled 2>/dev/null || true)
-          (curl -i -H "Host: da-fire.com" http://127.0.0.1/zh 2>/dev/null | head -n 40 || true)
-          (curl -fsS -H "Host: da-fire.com" http://127.0.0.1/zh | grep -E "装备入口|Equipment Entry" || true)
+          if [ -n "${SSL_CERT:-}" ] && [ -n "${SSL_KEY:-}" ]; then
+            curl -k -fsSL --resolve www.da-fire.com:443:127.0.0.1 https://www.da-fire.com/zh | grep -E "装备入口|Equipment Entry"
+          else
+            curl -fsS -H "Host: 116.62.231.113" http://127.0.0.1/zh | grep -E "装备入口|Equipment Entry"
+          fi
           EOF
