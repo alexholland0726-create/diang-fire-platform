@@ -688,8 +688,12 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
 
       <section id="markets" className="group/markets relative overflow-hidden bg-ink px-5 py-16 text-white md:py-24">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-80 transition duration-700 ease-out group-hover/markets:scale-[1.02] group-hover/markets:opacity-100"
-          style={{ backgroundImage: "url(/site-images/fire-scene-team-hose.jpg)" }}
+          className="absolute inset-0 bg-no-repeat opacity-80 transition duration-700 ease-out group-hover/markets:opacity-100"
+          style={{
+            backgroundImage: "url(/site-images/fire-scene-team-hose.jpg)",
+            backgroundPosition: "top center",
+            backgroundSize: "100% auto"
+          }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(11,23,41,0.82)_0%,rgba(11,23,41,0.66)_48%,rgba(11,23,41,0.76)_100%)]" />
         <div className="industrial-grid absolute inset-0 opacity-25" />
