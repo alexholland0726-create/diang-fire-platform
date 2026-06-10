@@ -55,4 +55,6 @@ jobs:
           kill $HEARTBEAT_PID >/dev/null 2>&1 || true
           pm2 restart diang-fire-platform
           pm2 save
+          sleep 3
+          curl -fsS http://127.0.0.1:3000/zh | grep -E "装备入口|Equipment Entry"
           EOF
