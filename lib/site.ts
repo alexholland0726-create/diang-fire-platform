@@ -165,7 +165,7 @@ export const featuredProducts = [
     tagEn: "Featured",
     nameZh: "正压式空气呼吸器",
     nameEn: "Positive Pressure SCBA",
-    imageUrl: "https://images.pexels.com/photos/5965109/pexels-photo-5965109.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    imageUrl: "/site-images/respiratory-scba-cylinder.jpg",
     descZh: "适用于消防、应急救援、化工和市政等高风险作业环境。",
     descEn: "For firefighting, rescue, chemical, and municipal high-risk environments."
   },
@@ -174,7 +174,7 @@ export const featuredProducts = [
     tagEn: "Fire Rescue",
     nameZh: "消防员灭火防护服",
     nameEn: "Firefighting Protective Suit",
-    imageUrl: "https://images.pexels.com/photos/280076/pexels-photo-280076.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    imageUrl: "/site-images/firewear-firefighter-portrait.jpg",
     descZh: "覆盖灭火、防热、防护和多规格采购场景。",
     descEn: "Supports firefighting, heat protection, PPE, and multi-spec procurement."
   },
@@ -183,7 +183,7 @@ export const featuredProducts = [
     tagEn: "Industrial Safety",
     nameZh: "MSA 4合1气体检测仪",
     nameEn: "MSA 4-Gas Detector",
-    imageUrl: "https://assetlibrary.msasafety.com/transform/catalogthumb/1b85f2e0-076b-414d-bca8-e5957b323be5/ALTAIR4XRMultigasDetector_000080001600001026_US",
+    imageUrl: "/site-images/industrial-respirator-team.jpg",
     descZh: "适用于有限空间、石化、制药和仓储作业的氧气、可燃气及有毒气体检测。",
     descEn: "For oxygen, combustible gas, and toxic gas detection in confined spaces, petrochemical, pharmaceutical, and warehousing operations."
   }

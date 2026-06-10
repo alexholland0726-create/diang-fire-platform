@@ -1,8 +1,6 @@
 import type { Locale } from "@/lib/site";
 
-export function generateStaticParams() {
-  return [{ locale: "zh" }, { locale: "en" }];
-}
+export const dynamic = "force-dynamic";
 
 export default function LocaleLayout({
   children,

@@ -3,6 +3,7 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { isAdminRequest, unauthorizedJson } from "@/lib/auth";
+import { getProductUploadDir, getProductUploadPath, productUploadUrlPrefix } from "@/lib/uploads";
 
 export const dynamic = "force-dynamic";
 
@@ -39,13 +40,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "图片不能超过 5MB" }, { status: 400 });
   }
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "products");
+  const uploadDir = getProductUploadDir();
   await fs.mkdir(uploadDir, { recursive: true });
 
   const filename = `${Date.now()}-${randomUUID()}${getExtension(file)}`;
-  const filepath = path.join(uploadDir, filename);
+  const filepath = getProductUploadPath(filename);
   const buffer = Buffer.from(await file.arrayBuffer());
   await fs.writeFile(filepath, buffer);
 
-  return NextResponse.json({ url: `/uploads/products/${filename}` });
+  return NextResponse.json({ url: `${productUploadUrlPrefix}/${filename}` });
 }

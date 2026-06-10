@@ -21,6 +21,8 @@ type Product = {
   nameEn: string;
   summaryZh: string;
   summaryEn: string;
+  subcategoryZh: string;
+  subcategoryEn: string;
   specs: string;
   imageUrl: string;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
@@ -35,9 +37,17 @@ type ProductForm = {
   nameEn: string;
   summaryZh: string;
   summaryEn: string;
+  subcategoryZh: string;
+  subcategoryEn: string;
   specs: string;
   imageUrl: string;
   status: Product["status"];
+};
+
+type CategoryForm = {
+  nameZh: string;
+  nameEn: string;
+  slug: string;
 };
 
 const emptyForm: ProductForm = {
@@ -47,9 +57,17 @@ const emptyForm: ProductForm = {
   nameEn: "",
   summaryZh: "",
   summaryEn: "",
+  subcategoryZh: "",
+  subcategoryEn: "",
   specs: "",
   imageUrl: "",
   status: "DRAFT"
+};
+
+const emptyCategoryForm: CategoryForm = {
+  nameZh: "",
+  nameEn: "",
+  slug: ""
 };
 
 const statusText = {
@@ -62,8 +80,10 @@ export function AdminProductsManager() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState<ProductForm>(emptyForm);
+  const [categoryForm, setCategoryForm] = useState<CategoryForm>(emptyCategoryForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingCategory, setSavingCategory] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -131,6 +151,10 @@ export function AdminProductsManager() {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  function updateCategoryForm(field: keyof CategoryForm, value: string) {
+    setCategoryForm((current) => ({ ...current, [field]: value }));
+  }
+
   function resetForm() {
     setForm({
       ...emptyForm,
@@ -149,6 +173,8 @@ export function AdminProductsManager() {
       nameEn: product.nameEn,
       summaryZh: product.summaryZh,
       summaryEn: product.summaryEn,
+      subcategoryZh: product.subcategoryZh,
+      subcategoryEn: product.subcategoryEn,
       specs: product.specs,
       imageUrl: product.imageUrl,
       status: product.status
@@ -186,6 +212,35 @@ export function AdminProductsManager() {
     }
   }
 
+  async function saveCategory(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSavingCategory(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(categoryForm)
+      });
+      const result = (await response.json()) as { category?: Category; error?: string };
+
+      if (!response.ok || !result.category) {
+        throw new Error(result.error ?? "分类保存失败");
+      }
+
+      setCategories((current) => [...current, result.category as Category]);
+      setForm((current) => ({ ...current, categoryId: String(result.category?.id) }));
+      setCategoryForm(emptyCategoryForm);
+      setMessage("分类已新增");
+    } catch (categoryError) {
+      setError(categoryError instanceof Error ? categoryError.message : "分类保存失败");
+    } finally {
+      setSavingCategory(false);
+    }
+  }
+
   async function saveProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
@@ -204,6 +259,8 @@ export function AdminProductsManager() {
           nameEn: form.nameEn,
           summaryZh: form.summaryZh,
           summaryEn: form.summaryEn,
+          subcategoryZh: form.subcategoryZh,
+          subcategoryEn: form.subcategoryEn,
           specs: form.specs,
           imageUrl: form.imageUrl,
           status: form.status
@@ -270,6 +327,42 @@ export function AdminProductsManager() {
           )}
         </div>
 
+        <form className="mt-6 grid gap-3 rounded-md border border-ink/10 bg-mist p-4" onSubmit={saveCategory}>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold text-ink">新增产品分类</div>
+              <div className="mt-1 text-xs text-steel">后续上传新系列产品时，先在这里建立分类。</div>
+            </div>
+            <button
+              disabled={savingCategory || !categoryForm.nameZh.trim()}
+              className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md bg-ink px-3 text-xs font-semibold text-white disabled:opacity-50"
+            >
+              <Plus className="h-4 w-4" />
+              {savingCategory ? "保存中..." : "保存分类"}
+            </button>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            <input
+              value={categoryForm.nameZh}
+              onChange={(event) => updateCategoryForm("nameZh", event.target.value)}
+              className="h-10 rounded-md border border-ink/10 bg-white px-3 text-sm outline-none focus:border-gold"
+              placeholder="中文分类名"
+            />
+            <input
+              value={categoryForm.nameEn}
+              onChange={(event) => updateCategoryForm("nameEn", event.target.value)}
+              className="h-10 rounded-md border border-ink/10 bg-white px-3 text-sm outline-none focus:border-gold"
+              placeholder="English category"
+            />
+            <input
+              value={categoryForm.slug}
+              onChange={(event) => updateCategoryForm("slug", event.target.value)}
+              className="h-10 rounded-md border border-ink/10 bg-white px-3 text-sm outline-none focus:border-gold"
+              placeholder="URL标识，可选"
+            />
+          </div>
+        </form>
+
         <form className="mt-6 grid gap-4" onSubmit={saveProduct}>
           <label className="grid gap-2 text-sm font-medium text-ink">
             产品分类
@@ -286,6 +379,26 @@ export function AdminProductsManager() {
               ))}
             </select>
           </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2 text-sm font-medium text-ink">
+              子级分类
+              <input
+                value={form.subcategoryZh}
+                onChange={(event) => updateForm("subcategoryZh", event.target.value)}
+                className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
+                placeholder="例如：破拆工具"
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-medium text-ink">
+              English subcategory
+              <input
+                value={form.subcategoryEn}
+                onChange={(event) => updateForm("subcategoryEn", event.target.value)}
+                className="h-11 rounded-md border border-ink/10 px-3 outline-none focus:border-gold"
+                placeholder="Forcible entry tools"
+              />
+            </label>
+          </div>
 
           <label className="grid gap-2 text-sm font-medium text-ink">
             中文产品名称

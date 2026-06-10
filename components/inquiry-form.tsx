@@ -6,6 +6,8 @@ import { Send } from "lucide-react";
 type InquiryFormProps = {
   isZh: boolean;
   categories: Array<{ zh: string; en: string }>;
+  initialCategory?: string;
+  initialMessage?: string;
 };
 
 const emptyForm = {
@@ -17,8 +19,12 @@ const emptyForm = {
   message: ""
 };
 
-export function InquiryForm({ isZh, categories }: InquiryFormProps) {
-  const [form, setForm] = useState(emptyForm);
+export function InquiryForm({ isZh, categories, initialCategory = "", initialMessage = "" }: InquiryFormProps) {
+  const [form, setForm] = useState({
+    ...emptyForm,
+    category: initialCategory,
+    message: initialMessage
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");

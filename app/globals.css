@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -43,4 +43,19 @@ a {
 
 .text-balance {
   text-wrap: balance;
+}
+@keyframes diang-visual-drift {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.045) translate3d(-10px, -6px, 0);
+  }
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+.diang-visual-drift {
+  animation: diang-visual-drift 18s ease-in-out infinite;
 }

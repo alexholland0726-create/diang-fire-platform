@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   ArrowRight,
   BarChart3,
@@ -18,6 +18,7 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
+import { listCategories, listProducts } from "@/lib/db";
 import {
   dictionary,
   featuredProducts,
@@ -28,19 +29,84 @@ import {
   type Locale
 } from "@/lib/site";
 
-const heroImage =
-  "https://images.pexels.com/photos/5965109/pexels-photo-5965109.jpeg?auto=compress&cs=tinysrgb&w=2400";
+const heroImage = "/site-images/hero-fire-scene.jpg";
 
-const productPanelImage =
-  "https://images.pexels.com/photos/5965109/pexels-photo-5965109.jpeg?auto=compress&cs=tinysrgb&w=1200";
+const productPanelImage = "/site-images/fire-scene-team-hose.jpg";
+
+const categoryVisuals: Record<string, string> = {
+  "rescue-equipment": "/site-images/rescue-tools-spreader.jpg",
+  "respiratory-protection": "/site-images/respiratory-scba-cylinder.jpg",
+  firewear: "/site-images/firewear-firefighter-portrait.jpg",
+  extinguishing: "/site-images/extinguishing-water-foam.jpg",
+  "emergency-lighting": "/site-images/emergency-lighting-flashlight.jpg",
+  "industrial-safety": "/site-images/industrial-respirator-team.jpg"
+};
+
+const marketVisuals = [
+  "/site-images/fire-scene-team-hose.jpg",
+  "/site-images/industrial-respirator-team.jpg",
+  "/site-images/fire-scene-team-hose.jpg",
+  "/site-images/rescue-tools-spreader.jpg"
+];
+
+const businessVisuals = [
+  "/site-images/rescue-tools-spreader.jpg",
+  "/site-images/industrial-respirator-team.jpg",
+  "/site-images/fire-hose-storage.jpg",
+  "/site-images/fire-scene-team-hose.jpg"
+];
+
+export const dynamic = "force-dynamic";
+
+function WindowBadge({ code }: { code: string }) {
+  return (
+    <span className="absolute left-3 top-3 z-20 rounded-md border border-gold/70 bg-ink/86 px-2.5 py-1 text-xs font-bold tracking-wide text-gold shadow-[0_10px_24px_rgba(0,0,0,0.28)] backdrop-blur">
+      {code}
+    </span>
+  );
+}
 
 export default function HomePage({ params }: { params: { locale: Locale } }) {
   const locale = params.locale === "en" ? "en" : "zh";
   const t = dictionary[locale];
   const otherLocale = locale === "zh" ? "en" : "zh";
   const isZh = locale === "zh";
+  const categories = listCategories();
+  const visibleProducts = listProducts().filter((product) => product.status !== "ARCHIVED");
+  const productCategoryCards = productCategories.map((category) => {
+    const dbCategory = categories.find((item) => item.slug === category.key);
+    const products = dbCategory
+      ? visibleProducts.filter((product) => product.categoryId === dbCategory.id)
+      : [];
+
+    return {
+      ...category,
+      products
+    };
+  });
+  const displayProducts = visibleProducts.length
+    ? visibleProducts.slice(0, 6).map((product) => {
+        const category = categories.find((item) => item.id === product.categoryId);
+
+        return {
+          key: `product-${product.id}`,
+          tagZh: product.categoryNameZh,
+          tagEn: product.categoryNameEn,
+          nameZh: product.nameZh,
+          nameEn: product.nameEn || product.nameZh,
+          imageUrl: product.imageUrl || productPanelImage,
+          descZh: product.summaryZh || product.specs || product.sku,
+          descEn: product.summaryEn || product.summaryZh || product.specs || product.sku,
+          href: `/${locale}/products${category ? `?category=${category.slug}` : ""}`
+        };
+      })
+    : featuredProducts.map((product) => ({
+        ...product,
+        key: product.nameZh,
+        href: `/${locale}/inquiry`
+      }));
   const navLinks = t.nav.map((label, index) => {
-    const hrefs = ["#top", "#products", "#solutions", "#cases", "#knowledge", "#about"];
+    const hrefs = ["#top", `/${locale}/products`, `/${locale}/solutions`, `/${locale}/cases`, `/${locale}/insights`, `/${locale}/about`];
     return { label, href: hrefs[index] || "#top" };
   });
   const trustPoints: Array<[string, string]> = [
@@ -146,9 +212,9 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             {isZh ? "最新：帝昂消防装备采购与客户服务平台第一版建设中" : "Latest: Diang sourcing and client service platform is in progress"}
           </div>
           <div className="flex items-center gap-5 text-white/64">
-            <a href="#knowledge" className="hover:text-white">{isZh ? "资料中心" : "Resource Center"}</a>
-            <a href="#knowledge" className="hover:text-white">{isZh ? "服务支持" : "Service Support"}</a>
-            <a href="#contact" className="hover:text-white">{isZh ? "联系我们" : "Contact"}</a>
+            <Link href={`/${locale}/insights/product-documents`} className="hover:text-white">{isZh ? "资料中心" : "Resource Center"}</Link>
+            <Link href={`/${locale}/insights/service-records`} className="hover:text-white">{isZh ? "服务支持" : "Service Support"}</Link>
+            <Link href={`/${locale}/about`} className="hover:text-white">{isZh ? "联系我们" : "Contact"}</Link>
           </div>
         </div>
       </div>
@@ -178,12 +244,12 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             >
               {t.customer}
             </Link>
-            <a
-              href="#contact"
+            <Link
+              href={`/${locale}/about`}
               className="hidden h-10 items-center rounded-md bg-ink px-4 text-sm font-semibold text-white hover:bg-gold hover:text-ink md:inline-flex"
             >
               {isZh ? "联系我们" : "Contact"}
-            </a>
+            </Link>
             <details className="relative lg:hidden">
               <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-md border border-ink/10 text-ink [&::-webkit-details-marker]:hidden">
                 <Menu className="h-5 w-5" />
@@ -200,9 +266,9 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                 <Link href={`/${locale}/admin`} className="mt-1 block rounded-md border border-ink/10 px-3 py-3 text-sm font-semibold text-ink">
                   {t.admin}
                 </Link>
-                <a href="#contact" className="mt-1 block rounded-md border border-ink/10 px-3 py-3 text-sm font-semibold text-ink">
+                <Link href={`/${locale}/about`} className="mt-1 block rounded-md border border-ink/10 px-3 py-3 text-sm font-semibold text-ink">
                   {isZh ? "联系我们" : "Contact"}
-                </a>
+                </Link>
               </div>
             </details>
           </div>
@@ -210,6 +276,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
       </header>
 
       <section id="top" className="relative overflow-hidden bg-ink text-white">
+        <WindowBadge code="H01" />
         <div
           className="absolute inset-0 bg-cover bg-center opacity-75"
           style={{ backgroundImage: `url(${heroImage})` }}
@@ -277,7 +344,8 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
       <section className="relative z-10 -mt-10 px-5 pb-12 md:-mt-14">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-md border border-ink/10 bg-white shadow-soft">
           <div className="grid lg:grid-cols-[300px_1fr]">
-            <div className="bg-ink p-6 text-white md:p-8">
+            <div className="relative bg-ink p-6 text-white md:p-8">
+              <WindowBadge code="H02A" />
               <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
                 {isZh ? "快速入口" : "Quick Access"}
               </div>
@@ -291,19 +359,28 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
               </p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4">
-          {markets.map((market) => (
-            <a
+          {markets.map((market, index) => (
+            <Link
               key={market.zh}
-              href="#markets"
-              className="group border-b border-ink/10 px-5 py-5 transition hover:bg-mist sm:border-r lg:border-b-0"
+              href={`/${locale}/solutions/${market.en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`}
+              className="group relative min-h-[202px] overflow-hidden border-b border-white/10 p-5 text-white transition sm:border-r lg:border-b-0"
             >
-              <div className="text-sm font-semibold text-ink group-hover:text-gold">
-                {isZh ? market.zh : market.en}
+              <WindowBadge code={`H0${index + 2}`} />
+              <div
+                className="absolute inset-0 bg-cover bg-center transition duration-700 ease-out group-hover:scale-110"
+                style={{ backgroundImage: `url(${marketVisuals[index] || productPanelImage})` }}
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,23,41,0.34)_0%,rgba(11,23,41,0.82)_100%)] backdrop-blur-[1px] transition duration-500 group-hover:bg-[linear-gradient(180deg,rgba(11,23,41,0.20)_0%,rgba(11,23,41,0.78)_100%)]" />
+              <div className="industrial-grid absolute inset-0 opacity-25" />
+              <div className="relative flex h-full min-h-[162px] flex-col justify-end">
+                <div className="text-sm font-semibold text-white drop-shadow group-hover:text-gold">
+                  {isZh ? market.zh : market.en}
+                </div>
+                <p className="mt-2 line-clamp-3 text-xs leading-5 text-white/78 drop-shadow">
+                  {isZh ? market.descZh : market.descEn}
+                </p>
               </div>
-              <p className="mt-2 line-clamp-2 text-xs leading-5 text-steel">
-                {isZh ? market.descZh : market.descEn}
-              </p>
-            </a>
+            </Link>
           ))}
             </div>
           </div>
@@ -313,7 +390,48 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
       <section className="bg-white px-5 pb-16 md:pb-24">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
-            <div>
+            <div className="group relative min-h-[430px] overflow-hidden rounded-md p-7 text-white shadow-soft md:p-9">
+              <WindowBadge code="H05A" />
+              <div
+                className="absolute inset-0 bg-cover bg-center transition duration-700 ease-out group-hover:scale-105"
+                style={{ backgroundImage: "url(/site-images/rescue-tools-spreader.jpg)" }}
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(11,23,41,0.92)_0%,rgba(11,23,41,0.78)_52%,rgba(11,23,41,0.40)_100%)] backdrop-blur-[1px]" />
+              <div className="industrial-grid absolute inset-0 opacity-35" />
+              <div className="relative flex h-full flex-col justify-between gap-10">
+                <div>
+                  <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
+                    {isZh ? "\u4e1a\u52a1\u7248\u56fe" : "Business Map"}
+                  </div>
+                  <h2 className="mt-4 text-3xl font-semibold leading-tight md:text-5xl">
+                    {isZh ? "\u628a\u590d\u6742\u91c7\u8d2d\uff0c\u6574\u7406\u6210\u53ef\u6267\u884c\u7684\u88c5\u5907\u65b9\u6848" : "Turn complex sourcing into an executable equipment plan"}
+                  </h2>
+                  <p className="mt-5 max-w-xl leading-8 text-white/76">
+                    {isZh
+                      ? "\u5ba2\u6237\u5173\u5fc3\u7684\u4e0d\u53ea\u662f\u4e70\u54ea\u4e00\u4ef6\u4ea7\u54c1\uff0c\u800c\u662f\u573a\u666f\u662f\u5426\u5339\u914d\u3001\u89c4\u683c\u662f\u5426\u51c6\u786e\u3001\u8bc1\u4e66\u8d44\u6599\u662f\u5426\u9f50\u5168\u3001\u4ea4\u671f\u548c\u540e\u7eed\u7ef4\u4fdd\u662f\u5426\u6709\u4eba\u8ddf\u8fdb\u3002"
+                      : "Clients need more than a SKU: the right scenario fit, accurate specifications, complete documents, lead-time clarity, and service follow-up."}
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {(isZh
+                    ? [
+                        ["\u573a\u666f", "\u6309\u6d88\u9632\u6551\u63f4\u3001\u56ed\u533a\u3001\u5316\u5de5\u3001\u516c\u5171\u5efa\u7b51\u62c6\u89e3\u9700\u6c42"],
+                        ["\u6e05\u5355", "\u628a\u88c5\u5907\u3001\u53c2\u6570\u3001\u6570\u91cf\u548c\u8d44\u6599\u6574\u7406\u6210\u91c7\u8d2d\u53e3\u5f84"],
+                        ["\u8ddf\u8fdb", "\u4ece\u8be2\u4ef7\u3001\u4ea4\u4ed8\u5230\u7ef4\u4fdd\u8bb0\u5f55\u5f62\u6210\u957f\u671f\u670d\u52a1"]
+                      ]
+                    : [
+                        ["Scenario", "Break down needs by rescue, industrial, chemical, and public-building use cases"],
+                        ["Checklist", "Organize equipment, specs, quantity, and documents for sourcing"],
+                        ["Follow-up", "Connect inquiry, delivery, and service records"]
+                      ]
+                  ).map(([title, desc]) => (
+                    <div key={title} className="rounded-md border border-white/16 bg-white/10 p-4 shadow-[0_14px_34px_rgba(0,0,0,0.18)] backdrop-blur-md">
+                      <div className="text-base font-semibold text-gold">{title}</div>
+                      <div className="mt-2 text-sm leading-6 text-white/72">{desc}</div>
+                    </div>
+                  ))}
+                </div>
+              <div className="hidden">
               <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
                 {isZh ? "业务版图" : "Business Map"}
               </div>
@@ -333,14 +451,25 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                 ))}
               </div>
             </div>
+            </div>
+            </div>
             <div className="grid gap-px overflow-hidden rounded-md border border-ink/10 bg-ink/10 sm:grid-cols-2">
-              {businessMap.map(([Icon, title, desc]) => (
-                <article key={title} className="group bg-white p-6 transition hover:bg-ink hover:text-white">
-                  <div className="grid h-11 w-11 place-items-center rounded-md bg-ink text-gold group-hover:bg-white">
+              {businessMap.map(([Icon, title, desc], index) => (
+                <article key={title} className="group relative min-h-[210px] overflow-hidden p-6 text-white transition">
+                  <WindowBadge code={`H0${index + 6}`} />
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition duration-700 ease-out group-hover:scale-110"
+                    style={{ backgroundImage: `url(${businessVisuals[index] || productPanelImage})` }}
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(11,23,41,0.80)_0%,rgba(11,23,41,0.56)_58%,rgba(11,23,41,0.34)_100%)] backdrop-blur-[1px] transition duration-500 group-hover:bg-[linear-gradient(135deg,rgba(11,23,41,0.68)_0%,rgba(11,23,41,0.48)_58%,rgba(11,23,41,0.24)_100%)]" />
+                  <div className="industrial-grid absolute inset-0 opacity-25" />
+                  <div className="relative">
+                  <div className="grid h-11 w-11 place-items-center rounded-md bg-white/88 text-gold shadow-[0_12px_28px_rgba(0,0,0,0.22)] backdrop-blur-md transition group-hover:-translate-y-1">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-5 text-xl font-semibold text-ink group-hover:text-white">{title}</h3>
-                  <p className="mt-3 leading-7 text-steel group-hover:text-white/70">{desc}</p>
+                  <h3 className="mt-5 text-xl font-semibold drop-shadow">{title}</h3>
+                  <p className="mt-3 leading-7 text-white/78 drop-shadow">{desc}</p>
+                  </div>
                 </article>
               ))}
             </div>
@@ -350,7 +479,8 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
 
       <section id="products" className="bg-[linear-gradient(180deg,#F6F8FB_0%,#FFFFFF_46%)] px-5 py-16 md:py-24">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[330px_1fr]">
-          <div className="lg:sticky lg:top-28 lg:self-start">
+          <div className="relative lg:sticky lg:top-28 lg:self-start">
+            <WindowBadge code="H10A" />
             <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
               {t.products}
             </div>
@@ -379,52 +509,76 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             </Link>
           </div>
           <div className="grid gap-4">
-            <article className="grid overflow-hidden rounded-md border border-ink/10 bg-ink text-white shadow-soft lg:grid-cols-[1fr_280px]">
-              <div className="p-6 md:p-8">
-                <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
-                  {isZh ? "采购流程" : "Sourcing Flow"}
+            <article className="group relative min-h-[290px] overflow-hidden rounded-md border border-ink/10 text-white shadow-soft">
+              <WindowBadge code="H10" />
+              <div
+                className="diang-visual-drift absolute inset-0 bg-cover bg-center opacity-85 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
+                style={{ backgroundImage: "url(/site-images/hero-fire-scene.jpg)" }}
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,23,41,0.88)_0%,rgba(11,23,41,0.58)_48%,rgba(11,23,41,0.18)_100%)] transition duration-500 group-hover:bg-[linear-gradient(90deg,rgba(11,23,41,0.76)_0%,rgba(11,23,41,0.44)_48%,rgba(11,23,41,0.10)_100%)]" />
+              <div className="industrial-grid absolute inset-0 opacity-22" />
+              <div className="relative flex min-h-[290px] flex-col justify-between p-6 md:p-8">
+                <div>
+                  <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold drop-shadow">
+                    {isZh ? "装备入口" : "Equipment Entry"}
+                  </div>
+                  <h3 className="mt-4 max-w-3xl text-2xl font-semibold leading-tight drop-shadow md:text-4xl">
+                    {isZh ? "先看真实场景，再进入对应装备" : "Start from the scene, then enter the right equipment"}
+                  </h3>
+                  <p className="mt-4 max-w-2xl leading-8 text-white/80 drop-shadow">
+                    {isZh
+                      ? "把消防救援、呼吸防护、个人防护、破拆照明放在同一张现场图里，客户看到的是可落地的装备组合，而不是零散目录。"
+                      : "Fire rescue, respiratory protection, PPE, rescue tools, and lighting are presented as field-ready equipment groups, not isolated catalog items."}
+                  </p>
                 </div>
-                <h3 className="mt-4 text-2xl font-semibold md:text-3xl">
-                  {isZh ? "从产品筛选到报价跟进，一条线完成" : "From product selection to quote follow-up"}
-                </h3>
-                <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                  {(isZh
-                    ? ["选择品类", "提交需求", "销售跟进"]
-                    : ["Pick category", "Submit request", "Sales follow-up"]
-                  ).map((step, index) => (
-                    <div key={step} className="border border-white/10 bg-white/8 p-4">
-                      <div className="text-sm text-gold">0{index + 1}</div>
-                      <div className="mt-2 text-sm font-semibold">{step}</div>
-                    </div>
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                  {[
+                    { label: isZh ? "进入产品中心" : "Product center", href: `/${locale}/products` },
+                    { label: isZh ? "消防救援装备" : "Rescue equipment", href: `/${locale}/products?category=rescue-equipment` },
+                    { label: isZh ? "提交项目清单" : "Send project list", href: `/${locale}/inquiry` }
+                  ].map((item, index) => (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className="group/action border border-white/24 bg-white/14 p-4 shadow-[0_14px_34px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-gold hover:bg-gold hover:text-ink"
+                    >
+                      <div className="text-sm text-gold transition group-hover/action:text-ink/70">0{index + 1}</div>
+                      <div className="mt-2 flex items-center justify-between gap-3 text-sm font-semibold">
+                        {item.label}
+                        <ArrowRight className="h-4 w-4 shrink-0" />
+                      </div>
+                    </Link>
                   ))}
                 </div>
               </div>
-              <div
-                className="min-h-56 bg-cover bg-center opacity-80"
-                style={{ backgroundImage: `url(${productPanelImage})` }}
-              />
             </article>
-            {productCategories.map((category) => (
+            {productCategoryCards.map((category, index) => (
               <article
                 key={category.key}
+                id={`category-${category.key}`}
                 className="group grid overflow-hidden rounded-md border border-ink/10 bg-white shadow-soft transition hover:-translate-y-1 hover:border-gold/70 md:grid-cols-[240px_1fr]"
               >
-                <div className="relative min-h-48 bg-ink p-6 text-white">
-                  <div className="absolute inset-0 industrial-grid opacity-70" />
-                  <div className="absolute bottom-0 right-0 h-28 w-28 translate-x-8 translate-y-8 rounded-full border border-gold/40" />
-                  <div className="relative flex h-full flex-col justify-between">
-                    <div className="grid h-12 w-12 place-items-center rounded-md bg-white text-ink">
-                      <Truck className="h-6 w-6 text-gold" />
+                <div className="relative min-h-48 overflow-hidden p-6 text-white">
+                  <WindowBadge code={`H${String(index + 11).padStart(2, "0")}`} />
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition duration-700 ease-out group-hover:scale-110"
+                    style={{ backgroundImage: `url(${categoryVisuals[category.key] || category.products[0]?.imageUrl || productPanelImage})` }}
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(11,23,41,0.80)_0%,rgba(11,23,41,0.54)_55%,rgba(11,23,41,0.26)_100%)] backdrop-blur-[1px]" />
+                  <div className="absolute inset-0 industrial-grid opacity-35" />
+                  <div className="absolute bottom-0 right-0 h-28 w-28 translate-x-8 translate-y-8 rounded-full border border-gold/45 bg-gold/5 transition duration-700 group-hover:scale-125 group-hover:bg-gold/10" />
+                  <div className="hidden">
+                    <div className="grid h-12 w-12 place-items-center rounded-md bg-white/88 text-ink shadow-[0_12px_28px_rgba(0,0,0,0.22)] backdrop-blur-md transition group-hover:-translate-y-1">
                     </div>
                     <div>
-                      <div className="text-xs uppercase tracking-[0.16em] text-white/45">
+                      <div className="text-xs uppercase tracking-[0.16em] text-white/68 drop-shadow">
                         {category.key}
                       </div>
-                      <div className="mt-2 text-2xl font-semibold text-gold">
-                        {(isZh ? category.itemsZh : category.itemsEn).length}
+                      <div className="mt-2 text-2xl font-semibold text-gold drop-shadow">
+                        {category.products.length || (isZh ? category.itemsZh : category.itemsEn).length}
                       </div>
-                      <div className="text-sm text-white/60">
-                        {isZh ? "重点子类" : "subcategories"}
+                      <div className="text-sm text-white/78 drop-shadow">
+                        {category.products.length ? (isZh ? "已上架产品" : "published products") : (isZh ? "重点子类" : "subcategories")}
                       </div>
                     </div>
                   </div>
@@ -440,10 +594,10 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                       </p>
                     </div>
                     <Link
-                      href={`/${locale}/inquiry`}
+                      href={`/${locale}/products?category=${category.key}`}
                       className="inline-flex h-10 shrink-0 items-center justify-center rounded-md border border-ink/10 px-4 text-sm font-semibold text-ink group-hover:border-gold group-hover:text-gold"
                     >
-                      {isZh ? "询价" : "Inquire"}
+                      {isZh ? "查看产品" : "View products"}
                     </Link>
                   </div>
                   <div className="mt-5 rounded-md border border-gold/25 bg-gold/10 px-4 py-3 text-sm font-semibold leading-6 text-ink">
@@ -451,20 +605,92 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                   </div>
                   <div className="mt-6 flex flex-wrap gap-2">
                     {(isZh ? category.itemsZh : category.itemsEn).map((item) => (
-                      <span key={item} className="rounded-full border border-ink/10 bg-mist px-3 py-2 text-sm text-steel">
+                      <Link
+                        key={item}
+                        href={`/${locale}/products?category=${category.key}&item=${encodeURIComponent(item)}`}
+                        className="rounded-full border border-ink/10 bg-mist px-3 py-2 text-sm text-steel transition hover:border-gold hover:bg-white hover:text-ink"
+                      >
                         {item}
-                      </span>
+                      </Link>
                     ))}
                   </div>
                 </div>
               </article>
             ))}
+            {visibleProducts.length ? (
+              <div className="mt-4 grid gap-4">
+                {productCategoryCards.map((category, categoryIndex) =>
+                  category.products.length ? (
+                    <section key={category.key} id={`products-${category.key}`} className="scroll-mt-28 rounded-md border border-ink/10 bg-white p-5 shadow-soft md:p-6">
+                      <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">
+                            {category.key}
+                          </div>
+                          <h3 className="mt-2 text-2xl font-semibold text-ink">
+                            {isZh ? category.zh : category.en}
+                          </h3>
+                        </div>
+                        <Link href={`/${locale}/products?category=${category.key}`} className="inline-flex h-10 items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white hover:bg-gold hover:text-ink">
+                          {isZh ? "进入分类" : "Open category"}
+                        </Link>
+                        <Link href={`/${locale}/inquiry?category=${encodeURIComponent(isZh ? category.zh : category.en)}`} className="inline-flex h-10 items-center justify-center rounded-md border border-ink/10 px-4 text-sm font-semibold text-ink hover:border-gold hover:text-gold">
+                          {isZh ? "咨询该分类" : "Inquire"}
+                        </Link>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        {category.products.map((product, productIndex) => (
+                          <article key={product.id} id={`product-${product.id}`} className="relative scroll-mt-28 overflow-hidden rounded-md border border-ink/10 bg-white">
+                            <WindowBadge code={`H${String(17 + categoryIndex * 10 + productIndex).padStart(2, "0")}`} />
+                            <div
+                              className="relative h-44 bg-ink bg-cover bg-center"
+                              style={{ backgroundImage: `url(${product.imageUrl || productPanelImage})` }}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-t from-ink/80 to-ink/8" />
+                              {product.sku ? (
+                                <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">
+                                  {product.sku}
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className="p-5">
+                              <h4 className="text-lg font-semibold leading-snug text-ink">
+                                {isZh ? product.nameZh : product.nameEn || product.nameZh}
+                              </h4>
+                              <p className="mt-3 line-clamp-3 text-sm leading-6 text-steel">
+                                {isZh ? product.summaryZh || product.specs : product.summaryEn || product.summaryZh || product.specs}
+                              </p>
+                              <Link href={`/${locale}/inquiry?product=${encodeURIComponent(isZh ? product.nameZh : product.nameEn || product.nameZh)}`} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-ink hover:text-gold">
+                                {isZh ? "询价该产品" : "Inquire product"}
+                                <ArrowRight className="h-4 w-4 text-gold" />
+                              </Link>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+                  ) : null
+                )}
+              </div>
+            ) : (
+              <div className="rounded-md border border-dashed border-ink/20 bg-white p-6 text-sm leading-7 text-steel">
+                {isZh
+                  ? "后台暂时没有可展示产品。请在产品管理中创建产品，前台产品中心会自动展示。"
+                  : "No visible products yet. Create products in the admin panel and they will appear here automatically."}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      <section id="markets" className="bg-[radial-gradient(circle_at_20%_0%,rgba(201,154,73,0.18),transparent_28%),linear-gradient(135deg,#0B1729_0%,#10223A_100%)] px-5 py-16 text-white md:py-24">
-        <div className="mx-auto max-w-7xl">
+      <section id="markets" className="group/markets relative overflow-hidden bg-ink px-5 py-16 text-white md:py-24">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-80 transition duration-700 ease-out group-hover/markets:scale-[1.02] group-hover/markets:opacity-100"
+          style={{ backgroundImage: "url(/site-images/fire-scene-team-hose.jpg)" }}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(11,23,41,0.82)_0%,rgba(11,23,41,0.66)_48%,rgba(11,23,41,0.76)_100%)]" />
+        <div className="industrial-grid absolute inset-0 opacity-25" />
+        <div className="relative mx-auto max-w-7xl">
           <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
               <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
@@ -474,15 +700,21 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                 {isZh ? "按行业场景进入产品和服务" : "Explore Products by Market"}
               </h2>
             </div>
-            <p className="max-w-xl leading-8 text-white/64">
+            <p className="max-w-xl leading-8 text-white/76">
               {isZh
-                ? "参考 MSA 的行业导向信息架构，客户可以先选场景，再进入产品、资料、询价和服务支持。"
-                : "Customers start from their market, then move into products, documents, quote requests, and service support."}
+                ? "先按真实使用场景梳理需求，再进入产品、资料、询价和服务支持。消防救援、石化、市政与工业客户，可以更快找到对应配置。"
+                : "Start from real operating environments, then move into products, documents, quote requests, and service support."}
             </p>
           </div>
           <div className="grid gap-5 lg:grid-cols-[1.05fr_1fr]">
-            <article className="relative min-h-96 overflow-hidden rounded-md border border-white/10 bg-white/8 p-7">
-              <div className="absolute inset-0 industrial-grid opacity-60" />
+            <article className="group relative min-h-96 overflow-hidden rounded-md border border-white/14 p-7 shadow-[0_24px_70px_rgba(0,0,0,0.22)]">
+              <WindowBadge code="H39" />
+              <div
+                className="absolute inset-0 bg-cover bg-center opacity-80 transition duration-700 ease-out group-hover:scale-105 group-hover:opacity-100"
+                style={{ backgroundImage: "url(/site-images/extinguishing-water-foam.jpg)" }}
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(11,23,41,0.88)_0%,rgba(11,23,41,0.66)_56%,rgba(11,23,41,0.34)_100%)] transition duration-500 group-hover:bg-[linear-gradient(135deg,rgba(11,23,41,0.78)_0%,rgba(11,23,41,0.54)_56%,rgba(11,23,41,0.22)_100%)]" />
+              <div className="absolute inset-0 industrial-grid opacity-30" />
               <div className="absolute -bottom-20 -right-16 h-72 w-72 rounded-full border border-gold/30" />
               <div className="relative flex h-full flex-col justify-between">
                 <div>
@@ -492,10 +724,10 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                   <h3 className="mt-6 max-w-xl text-3xl font-semibold leading-tight md:text-4xl">
                     {isZh ? "客户不是先找产品，而是先确认场景" : "Clients start from the environment, not the SKU"}
                   </h3>
-                  <p className="mt-5 max-w-xl leading-8 text-white/68">
+                  <p className="mt-5 max-w-xl leading-8 text-white/80">
                     {isZh
-                      ? "消防救援、石化、市政、电力和制造业客户，对认证、交期、资料和售后要求不同，页面需要让他们快速进入对应方案。"
-                      : "Fire rescue, chemical, utility, power, and manufacturing clients need different certifications, lead times, documents, and service workflows."}
+                      ? "把使用行业、作业风险、认证要求和交付周期放在同一个入口里，让采购和项目人员从场景直接进入可执行方案。"
+                      : "Put market, operating risk, certification requirements, and lead time into one entry point so teams can move directly into a workable solution."}
                   </p>
                 </div>
                 <Link href={`/${locale}/inquiry`} className="mt-8 inline-flex h-11 w-fit items-center gap-2 rounded-md bg-gold px-4 text-sm font-bold text-ink">
@@ -504,25 +736,33 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                 </Link>
               </div>
             </article>
-            <div className="grid gap-px overflow-hidden rounded-md border border-white/10 bg-white/10 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
             {markets.map((market, index) => (
-              <article key={market.zh} className="group bg-ink/70 p-6 transition hover:bg-white hover:text-ink">
-                <div className="text-sm text-gold">0{index + 1}</div>
-                <h3 className="mt-5 text-2xl font-semibold">{isZh ? market.zh : market.en}</h3>
-                <p className="mt-4 leading-7 text-white/64 group-hover:text-steel">
-                  {isZh ? market.descZh : market.descEn}
-                </p>
-                <button className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-gold">
-                  {isZh ? "查看方案" : "View solution"}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+              <article key={market.zh} className="group relative min-h-[238px] overflow-hidden rounded-md border border-white/14 p-6 text-white shadow-[0_18px_52px_rgba(0,0,0,0.20)]">
+                <WindowBadge code={`H${String(40 + index).padStart(2, "0")}`} />
+                <div
+                  className="absolute inset-0 bg-cover bg-center opacity-80 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
+                  style={{ backgroundImage: `url(${marketVisuals[index] || productPanelImage})` }}
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,23,41,0.34)_0%,rgba(11,23,41,0.84)_100%)] transition duration-500 group-hover:bg-[linear-gradient(180deg,rgba(11,23,41,0.22)_0%,rgba(11,23,41,0.70)_100%)]" />
+                <div className="industrial-grid absolute inset-0 opacity-20" />
+                <div className="relative flex min-h-[190px] flex-col justify-end">
+                  <div className="text-sm text-gold">0{index + 1}</div>
+                  <h3 className="mt-4 text-2xl font-semibold">{isZh ? market.zh : market.en}</h3>
+                  <p className="mt-4 leading-7 text-white/78">
+                    {isZh ? market.descZh : market.descEn}
+                  </p>
+                  <button className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-gold">
+                    {isZh ? "查看方案" : "View solution"}
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
               </article>
             ))}
             </div>
           </div>
         </div>
       </section>
-
       <section id="solutions" className="bg-[#F3F5F8] px-5 py-16 md:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
@@ -541,7 +781,8 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             </p>
           </div>
           <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
-            <aside className="rounded-md bg-white p-7 shadow-soft">
+            <aside className="relative rounded-md bg-white p-7 shadow-soft">
+              <WindowBadge code="H49" />
               <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
                 Service Chain
               </div>
@@ -563,8 +804,9 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
               </div>
             </aside>
             <div className="grid gap-px overflow-hidden rounded-md border border-ink/10 bg-ink/10 lg:grid-cols-3">
-            {solutions.map((solution) => (
-              <article key={solution.zh} className="group bg-white p-7 transition hover:bg-ink hover:text-white">
+            {solutions.map((solution, index) => (
+              <article key={solution.zh} className="group relative bg-white p-7 transition hover:bg-ink hover:text-white">
+                <WindowBadge code={`H${String(50 + index).padStart(2, "0")}`} />
                 <Building2 className="h-8 w-8 text-gold" />
                 <h3 className="mt-5 text-xl font-semibold text-ink group-hover:text-white">
                   {isZh ? solution.zh : solution.en}
@@ -598,7 +840,8 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
           </div>
           <div className="grid gap-5 lg:grid-cols-3">
             {caseCards.map(([market, title, desc], index) => (
-              <article key={title} className="rounded-md border border-ink/10 bg-[linear-gradient(180deg,#FFFFFF_0%,#F6F8FB_100%)] p-7 shadow-soft">
+              <article key={title} className="relative rounded-md border border-ink/10 bg-[linear-gradient(180deg,#FFFFFF_0%,#F6F8FB_100%)] p-7 shadow-soft">
+                <WindowBadge code={`H${String(60 + index).padStart(2, "0")}`} />
                 <div className="flex items-center justify-between gap-4">
                   <span className="rounded-full bg-ink px-3 py-1 text-xs font-semibold text-white">0{index + 1}</span>
                   <span className="text-sm font-semibold text-gold">{market}</span>
@@ -634,8 +877,9 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             </Link>
           </div>
           <div className="grid gap-5 lg:grid-cols-3">
-            {featuredProducts.map((product) => (
-              <article key={product.nameZh} className="overflow-hidden rounded-md border border-ink/10 bg-white shadow-soft">
+            {displayProducts.map((product, index) => (
+              <article key={product.key} className="relative overflow-hidden rounded-md border border-ink/10 bg-white shadow-soft">
+                <WindowBadge code={`H${String(70 + index).padStart(2, "0")}`} />
                 <div
                   className="relative flex h-52 items-end overflow-hidden bg-ink bg-cover bg-center p-6"
                   style={{ backgroundImage: `url(${product.imageUrl})` }}
@@ -652,10 +896,10 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                 </div>
                 <div className="p-6">
                   <p className="leading-7 text-steel">{isZh ? product.descZh : product.descEn}</p>
-                  <button className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink">
+                  <Link href={product.href} className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink hover:text-gold">
                     {isZh ? "了解更多" : "Learn more"}
                     <ArrowRight className="h-4 w-4 text-gold" />
-                  </button>
+                  </Link>
                 </div>
               </article>
             ))}
@@ -665,7 +909,8 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
 
       <section id="about" className="px-5 py-20">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-          <div>
+          <div className="relative">
+            <WindowBadge code="H79" />
             <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
               {isZh ? "Platform" : "Platform"}
             </div>
@@ -679,8 +924,9 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            {platformCards.map(([Icon, label]) => (
-              <div key={String(label)} className="rounded-md border border-ink/10 p-6">
+            {platformCards.map(([Icon, label], index) => (
+              <div key={String(label)} className="relative rounded-md border border-ink/10 p-6">
+                <WindowBadge code={`H${String(80 + index).padStart(2, "0")}`} />
                 <Icon className="h-7 w-7 text-gold" />
                 <div className="mt-4 text-lg font-semibold text-ink">{label}</div>
               </div>
@@ -691,8 +937,9 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
 
       <section id="knowledge" className="border-y border-ink/10 bg-mist px-5 py-12">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
-          {knowledgeCards.map(([Icon, title, desc]) => (
-            <article key={title} className="rounded-md bg-white p-6 shadow-soft">
+          {knowledgeCards.map(([Icon, title, desc], index) => (
+            <article key={title} className="relative rounded-md bg-white p-6 shadow-soft">
+              <WindowBadge code={`H${String(90 + index).padStart(2, "0")}`} />
               <Icon className="h-7 w-7 text-gold" />
               <h3 className="mt-4 text-xl font-semibold text-ink">{title}</h3>
               <p className="mt-3 leading-7 text-steel">{desc}</p>
@@ -708,7 +955,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
               <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
                 {isZh ? "联系我们" : "Contact"}
               </div>
-              <h2 className="mt-4 text-3xl font-semibold leading-tight text-ink md:text-5xl">
+              <h2 className="mt-4 text-3xl font-semibold leading-tight text-ink md:text-4xl">
                 {isZh ? "把联系方式放在客户最容易找到的位置" : "Make It Easy to Reach Diang"}
               </h2>
             </div>
@@ -722,12 +969,13 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
           <div className="overflow-hidden rounded-md border border-ink/10 bg-ink shadow-soft">
             <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
               <div className="relative p-7 text-white md:p-10 lg:p-12">
+                <WindowBadge code="H99" />
               <div className="industrial-grid absolute inset-0 opacity-45" />
               <div className="relative">
                 <div className="inline-flex rounded-md bg-white/10 px-3 py-1 text-sm font-semibold text-gold">
                   {isZh ? "上海帝昂实业有限公司" : "Shanghai Di'ang Industrial Co., Ltd."}
                 </div>
-                <h3 className="mt-5 text-3xl font-semibold leading-tight md:text-5xl">
+                <h3 className="mt-5 text-2xl font-semibold leading-tight md:text-4xl">
                   {isZh ? "消防救援装备与工业安全产品采购咨询" : "Fire Rescue and Industrial Safety Sourcing Support"}
                 </h3>
                 <p className="mt-5 max-w-xl leading-8 text-white/68">
@@ -766,44 +1014,44 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             <div className="bg-white p-6 md:p-8 lg:p-10">
               <div className="rounded-md border border-ink/10 bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FAFC_100%)] p-6 md:p-8">
                 <div className="text-sm font-semibold text-gold">{isZh ? "公司信息" : "Company Information"}</div>
-                <h3 className="mt-2 text-2xl font-semibold text-ink md:text-3xl">
+                <h3 className="mt-2 text-2xl font-semibold text-ink">
                   {isZh ? site.nameZh : site.nameEn}
                 </h3>
                 <div className="mt-8 grid gap-4 md:grid-cols-2">
-                  <a href={`tel:${site.phone}`} className="flex min-h-28 gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
+                  <a href={`tel:${site.phone}`} className="flex min-h-24 gap-3 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-ink text-gold">
                       <Phone className="h-5 w-5" />
                     </span>
                     <span>
                       <span className="block text-sm text-steel">{isZh ? "官方电话" : "Office Phone"}</span>
-                      <span className="mt-1 block text-xl font-semibold text-ink">{site.phone}</span>
+                      <span className="mt-1 block text-lg font-semibold text-ink">{site.phone}</span>
                     </span>
                   </a>
-                  <a href={`tel:${site.mobile}`} className="flex min-h-28 gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
+                  <a href={`tel:${site.mobile}`} className="flex min-h-24 gap-3 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-ink text-gold">
                       <Headset className="h-5 w-5" />
                     </span>
                     <span>
                       <span className="block text-sm text-steel">{isZh ? "业务手机" : "Mobile"}</span>
-                      <span className="mt-1 block text-xl font-semibold text-ink">{site.mobile}</span>
+                      <span className="mt-1 block text-lg font-semibold text-ink">{site.mobile}</span>
                     </span>
                   </a>
-                  <a href={`mailto:${site.email}`} className="flex min-h-28 gap-4 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
+                  <a href={`mailto:${site.email}`} className="flex min-h-24 gap-3 rounded-md border border-ink/10 p-4 transition hover:border-gold hover:bg-mist">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-ink text-gold">
                       <Mail className="h-5 w-5" />
                     </span>
                     <span className="min-w-0">
                       <span className="block text-sm text-steel">{isZh ? "询盘邮箱" : "Inquiry Email"}</span>
-                      <span className="mt-1 block break-words text-xl font-semibold text-ink">{site.email}</span>
+                      <span className="mt-1 block whitespace-nowrap text-[17px] font-semibold text-ink md:text-lg">{site.email}</span>
                     </span>
                   </a>
-                  <div className="flex min-h-28 gap-4 rounded-md border border-ink/10 p-4">
+                  <div className="flex min-h-24 gap-3 rounded-md border border-ink/10 p-4">
                     <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-ink text-gold">
                       <MapPin className="h-5 w-5" />
                     </span>
                     <span>
                       <span className="block text-sm text-steel">{isZh ? "公司地址" : "Address"}</span>
-                      <span className="mt-1 block text-xl font-semibold text-ink">{isZh ? site.addressZh : site.addressEn}</span>
+                      <span className="mt-1 block text-base font-semibold leading-7 text-ink md:text-lg">{isZh ? site.addressZh : site.addressEn}</span>
                     </span>
                   </div>
                 </div>

@@ -12,6 +12,8 @@ const productSchema = z.object({
   nameEn: z.string().trim().max(160).optional().default(""),
   summaryZh: z.string().trim().max(1000).optional().default(""),
   summaryEn: z.string().trim().max(1000).optional().default(""),
+  subcategoryZh: z.string().trim().max(120).optional().default(""),
+  subcategoryEn: z.string().trim().max(120).optional().default(""),
   specs: z.string().trim().max(4000).optional().default(""),
   imageUrl: z.string().trim().max(500).optional().default(""),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT")

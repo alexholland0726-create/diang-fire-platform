@@ -4,8 +4,16 @@ import { BrandLogo } from "@/components/brand-logo";
 import { InquiryForm } from "@/components/inquiry-form";
 import { productCategories, site, type Locale } from "@/lib/site";
 
-export default function InquiryPage({ params }: { params: { locale: Locale } }) {
+export default function InquiryPage({
+  params,
+  searchParams
+}: {
+  params: { locale: Locale };
+  searchParams?: { category?: string; item?: string; product?: string };
+}) {
   const isZh = params.locale !== "en";
+  const initialCategory = searchParams?.category || "";
+  const initialMessage = [searchParams?.product, searchParams?.item].filter(Boolean).join("\n");
 
   return (
     <main className="min-h-screen bg-white">
@@ -35,6 +43,8 @@ export default function InquiryPage({ params }: { params: { locale: Locale } }) 
           <InquiryForm
             isZh={isZh}
             categories={productCategories.map((category) => ({ zh: category.zh, en: category.en }))}
+            initialCategory={initialCategory}
+            initialMessage={initialMessage}
           />
         </div>
         <aside className="space-y-5">
@@ -42,13 +52,14 @@ export default function InquiryPage({ params }: { params: { locale: Locale } }) 
             <h2 className="text-xl font-semibold">{isZh ? "常用产品分类" : "Common Categories"}</h2>
             <div className="mt-5 space-y-3">
               {productCategories.map((category) => (
-                <div
+                <Link
                   key={category.key}
+                  href={`/${params.locale}/inquiry?category=${encodeURIComponent(isZh ? category.zh : category.en)}`}
                   className="flex w-full items-center justify-between rounded-md border border-white/12 px-4 py-3 text-left text-sm text-white/78"
                 >
                   {isZh ? category.zh : category.en}
                   <Plus className="h-4 w-4 text-gold" />
-                </div>
+                </Link>
               ))}
             </div>
           </section>

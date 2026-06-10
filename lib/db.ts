@@ -11,9 +11,16 @@ export type ProductCategoryRecord = {
   nameEn: string;
 };
 
+export type ProductCategoryInput = {
+  slug?: string;
+  nameZh: string;
+  nameEn: string;
+};
+
 export type ProductRecord = {
   id: number;
   categoryId: number;
+  categorySlug: string;
   categoryNameZh: string;
   categoryNameEn: string;
   sku: string;
@@ -21,6 +28,8 @@ export type ProductRecord = {
   nameEn: string;
   summaryZh: string;
   summaryEn: string;
+  subcategoryZh: string;
+  subcategoryEn: string;
   specs: string;
   imageUrl: string;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
@@ -35,6 +44,8 @@ export type ProductInput = {
   nameEn: string;
   summaryZh: string;
   summaryEn: string;
+  subcategoryZh: string;
+  subcategoryEn: string;
   specs: string;
   imageUrl: string;
   status: ProductRecord["status"];
@@ -62,7 +73,7 @@ export type InquiryInput = {
   message: string;
 };
 
-type ProductStoredRecord = Omit<ProductRecord, "categoryNameZh" | "categoryNameEn">;
+type ProductStoredRecord = Omit<ProductRecord, "categorySlug" | "categoryNameZh" | "categoryNameEn">;
 
 type Store = {
   nextProductId: number;
@@ -98,13 +109,19 @@ function ensureDataDir() {
 }
 
 function normalizeStore(store: Partial<Store>): Store {
-  const categories = categorySeeds.map((seed) => {
+  const seededCategories = categorySeeds.map((seed) => {
     const existing = store.categories?.find((item) => item.slug === seed.slug);
     return existing ? { ...existing, ...seed } : seed;
   });
+  const customCategories = (store.categories || []).filter(
+    (category) => !categorySeeds.some((seed) => seed.slug === category.slug || seed.id === category.id)
+  );
+  const categories = [...seededCategories, ...customCategories];
 
   const products = (store.products || []).map((product) => ({
     ...product,
+    subcategoryZh: product.subcategoryZh || "",
+    subcategoryEn: product.subcategoryEn || "",
     imageUrl: product.imageUrl || ""
   }));
 
@@ -148,6 +165,7 @@ function withCategory(product: ProductStoredRecord, categories: ProductCategoryR
 
   return {
     ...product,
+    categorySlug: category?.slug || "",
     categoryNameZh: category?.nameZh || "",
     categoryNameEn: category?.nameEn || ""
   };
@@ -155,6 +173,66 @@ function withCategory(product: ProductStoredRecord, categories: ProductCategoryR
 
 export function listCategories() {
   return readStore().categories;
+}
+
+function toSlug(input: string) {
+  return input
+    .trim()
+    .toLowerCase()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function uniqueCategorySlug(categories: ProductCategoryRecord[], input: ProductCategoryInput, currentId?: number) {
+  const baseSlug = toSlug(input.slug || input.nameEn || input.nameZh) || `category-${Date.now()}`;
+  let slug = baseSlug;
+  let index = 2;
+
+  while (categories.some((category) => category.slug === slug && category.id !== currentId)) {
+    slug = `${baseSlug}-${index}`;
+    index += 1;
+  }
+
+  return slug;
+}
+
+export function createCategory(input: ProductCategoryInput) {
+  const store = readStore();
+  const id = Math.max(0, ...store.categories.map((category) => category.id)) + 1;
+  const category: ProductCategoryRecord = {
+    id,
+    slug: uniqueCategorySlug(store.categories, input),
+    nameZh: input.nameZh,
+    nameEn: input.nameEn
+  };
+
+  store.categories.push(category);
+  writeStore(store);
+
+  return category;
+}
+
+export function updateCategory(id: number, input: ProductCategoryInput) {
+  const store = readStore();
+  const index = store.categories.findIndex((category) => category.id === id);
+
+  if (index < 0) {
+    return undefined;
+  }
+
+  const category = {
+    ...store.categories[index],
+    slug: uniqueCategorySlug(store.categories, input, id),
+    nameZh: input.nameZh,
+    nameEn: input.nameEn
+  };
+
+  store.categories[index] = category;
+  writeStore(store);
+
+  return category;
 }
 
 export function listProducts() {
@@ -181,6 +259,8 @@ export function createProduct(input: ProductInput) {
     nameEn: input.nameEn,
     summaryZh: input.summaryZh,
     summaryEn: input.summaryEn,
+    subcategoryZh: input.subcategoryZh,
+    subcategoryEn: input.subcategoryEn,
     specs: input.specs,
     imageUrl: input.imageUrl,
     status: input.status,
