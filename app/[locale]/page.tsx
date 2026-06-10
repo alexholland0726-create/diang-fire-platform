@@ -337,18 +337,18 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
       </section>
 
       <section
-        className="relative z-10 -mt-10 overflow-hidden px-5 pb-8 md:-mt-14 md:pb-10"
+        className="relative z-10 -mt-10 min-h-screen overflow-hidden px-5 pb-12 pt-12 md:-mt-14 md:pb-16 md:pt-16"
       >
         <div
-          className="absolute inset-0 bg-no-repeat opacity-75"
+          className="absolute inset-0 bg-no-repeat opacity-70"
           style={{
             backgroundImage: `url(${secondScreenImage})`,
             backgroundPosition: "top center",
             backgroundSize: "100% auto"
           }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,37,0.90)_0%,rgba(7,20,37,0.58)_22%,rgba(11,23,41,0.42)_56%,rgba(246,248,251,0.96)_100%)]" />
-        <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(180deg,rgba(7,20,37,0.96)_0%,rgba(7,20,37,0.38)_62%,rgba(7,20,37,0)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,37,0.86)_0%,rgba(7,20,37,0.48)_26%,rgba(11,23,41,0.28)_58%,rgba(246,248,251,0.90)_100%)]" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(7,20,37,0.95)_0%,rgba(7,20,37,0.30)_68%,rgba(7,20,37,0)_100%)]" />
         <div className="industrial-grid absolute inset-0 opacity-12" />
         <div className="relative mx-auto max-w-7xl overflow-hidden rounded-md border border-white/16 bg-ink/64 shadow-[0_28px_80px_rgba(0,0,0,0.30)] backdrop-blur-[1px]">
           <div className="border-b border-white/10 bg-white/[0.035] px-5 py-5 text-white md:px-7">
@@ -422,10 +422,10 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
         </div>
         <div className="relative mx-auto mt-6 max-w-7xl md:mt-7">
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="relative overflow-hidden rounded-md border border-ink/10 bg-white p-7 text-ink shadow-soft md:p-9">
+            <div className="relative overflow-hidden rounded-md border border-white/35 bg-white/72 p-7 text-ink shadow-[0_24px_80px_rgba(7,20,37,0.18)] backdrop-blur-md md:p-9">
               <WindowBadge code="H05A" />
-              <div className="absolute left-0 top-0 h-full w-1 bg-gold" />
-              <div className="industrial-grid absolute inset-0 opacity-[0.045]" />
+              <div className="absolute left-0 top-0 h-full w-1 bg-gold/90" />
+              <div className="industrial-grid absolute inset-0 opacity-[0.08]" />
               <div className="relative flex h-full flex-col justify-between gap-10">
                 <div>
                   <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
@@ -453,7 +453,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                         ["Follow-up", "Connect inquiry, delivery, and service records"]
                       ]
                   ).map(([title, desc]) => (
-                    <div key={title} className="rounded-md border border-ink/10 bg-mist p-4">
+                    <div key={title} className="rounded-md border border-white/45 bg-white/48 p-4 shadow-[0_10px_30px_rgba(7,20,37,0.08)] backdrop-blur-sm">
                       <div className="text-base font-semibold text-gold">{title}</div>
                       <div className="mt-2 text-sm leading-6 text-steel">{desc}</div>
                     </div>
@@ -463,9 +463,9 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {businessMap.map(([Icon, title, desc], index) => (
-                <article key={title} className="group relative min-h-[210px] overflow-hidden rounded-md border border-ink/10 bg-white p-6 text-ink shadow-soft transition hover:-translate-y-1 hover:border-gold/50">
+                <article key={title} className="group relative min-h-[210px] overflow-hidden rounded-md border border-white/35 bg-white/68 p-6 text-ink shadow-[0_20px_70px_rgba(7,20,37,0.16)] backdrop-blur-md transition hover:-translate-y-1 hover:border-gold/60 hover:bg-white/82">
                   <WindowBadge code={`H0${index + 6}`} />
-                  <div className="industrial-grid absolute inset-0 opacity-[0.045]" />
+                  <div className="industrial-grid absolute inset-0 opacity-[0.08]" />
                   <div className="relative">
                   <div className="grid h-11 w-11 place-items-center rounded-md bg-ink text-gold shadow-[0_12px_28px_rgba(0,0,0,0.12)] transition group-hover:bg-gold group-hover:text-ink">
                     <Icon className="h-5 w-5" />
