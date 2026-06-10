@@ -33,6 +33,8 @@ const heroImage = "/site-images/hero-fire-scene.jpg";
 
 const productPanelImage = "/site-images/fire-scene-team-hose.jpg";
 
+const secondScreenImage = "/site-images/fire-transition-scene.jpg";
+
 const categoryVisuals: Record<string, string> = {
   "rescue-equipment": "/site-images/rescue-tools-spreader.jpg",
   "respiratory-protection": "/site-images/respiratory-scba-cylinder.jpg",
@@ -334,8 +336,15 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
         </div>
       </section>
 
-      <section className="relative z-10 -mt-10 bg-[linear-gradient(180deg,#071425_0%,#0B1729_54%,#F6F8FB_100%)] px-5 pb-10 md:-mt-14 md:pb-14">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-md border border-white/12 bg-ink shadow-[0_28px_80px_rgba(0,0,0,0.26)]">
+      <section className="relative z-10 -mt-10 overflow-hidden px-5 pb-10 md:-mt-14 md:pb-14">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-80"
+          style={{ backgroundImage: `url(${secondScreenImage})` }}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,37,0.96)_0%,rgba(7,20,37,0.78)_18%,rgba(11,23,41,0.72)_58%,rgba(246,248,251,0.96)_100%)]" />
+        <div className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(180deg,rgba(7,20,37,0.98)_0%,rgba(7,20,37,0.58)_55%,rgba(7,20,37,0)_100%)]" />
+        <div className="industrial-grid absolute inset-0 opacity-20" />
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-md border border-white/14 bg-ink/76 shadow-[0_28px_80px_rgba(0,0,0,0.30)] backdrop-blur-[1px]">
           <div className="border-b border-white/10 bg-white/[0.035] px-5 py-5 text-white md:px-7">
             <div className="grid gap-5 lg:grid-cols-[1.15fr_1.85fr] lg:items-center">
               <div>
