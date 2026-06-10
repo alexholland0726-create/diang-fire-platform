@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   Boxes,
   FileCheck2,
@@ -27,7 +27,7 @@ export function AdminShell({ locale, active, title, description, children }: Adm
     ["products", Boxes, isZh ? "产品管理" : "Products", `/${locale}/admin/products`],
     ["inquiries", MessageSquareText, isZh ? "询价管理" : "Inquiries", `/${locale}/admin/inquiries`],
     ["customers", UsersRound, isZh ? "客户管理" : "Customers", `/${locale}/admin`],
-    ["content", FileCheck2, isZh ? "内容与资质" : "Content", `/${locale}/admin`],
+    ["content", FileCheck2, isZh ? "内容与资料" : "Content", `/${locale}/admin`],
     ["settings", Settings, isZh ? "系统设置" : "Settings", `/${locale}/admin`]
   ];
 

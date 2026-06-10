@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { LockKeyhole } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import type { Locale } from "@/lib/site";

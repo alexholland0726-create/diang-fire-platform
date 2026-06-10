@@ -1,4 +1,4 @@
-import fs from "node:fs";
+﻿import fs from "node:fs";
 import path from "node:path";
 
 const dataDir = process.env.DIANG_DATA_DIR || path.join(process.cwd(), "data");
@@ -23,6 +23,7 @@ export type ProductRecord = {
   categorySlug: string;
   categoryNameZh: string;
   categoryNameEn: string;
+  brand: string;
   sku: string;
   nameZh: string;
   nameEn: string;
@@ -31,6 +32,7 @@ export type ProductRecord = {
   subcategoryZh: string;
   subcategoryEn: string;
   specs: string;
+  referencePrice: string;
   imageUrl: string;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   createdAt: string;
@@ -39,6 +41,7 @@ export type ProductRecord = {
 
 export type ProductInput = {
   categoryId: number;
+  brand: string;
   sku: string;
   nameZh: string;
   nameEn: string;
@@ -47,6 +50,7 @@ export type ProductInput = {
   subcategoryZh: string;
   subcategoryEn: string;
   specs: string;
+  referencePrice: string;
   imageUrl: string;
   status: ProductRecord["status"];
 };
@@ -84,12 +88,14 @@ type Store = {
 };
 
 const categorySeeds: ProductCategoryRecord[] = [
-  { id: 1, slug: "rescue-equipment", nameZh: "消防救援装备", nameEn: "Fire Rescue Equipment" },
-  { id: 2, slug: "respiratory-protection", nameZh: "呼吸防护", nameEn: "Respiratory Protection" },
-  { id: 3, slug: "firewear", nameZh: "消防服装", nameEn: "Fire Protective Clothing" },
-  { id: 4, slug: "extinguishing", nameZh: "灭火设备", nameEn: "Fire Extinguishing Equipment" },
-  { id: 5, slug: "emergency-lighting", nameZh: "应急照明", nameEn: "Emergency Lighting" },
-  { id: 6, slug: "industrial-safety", nameZh: "工业安全", nameEn: "Industrial Safety" }
+  { id: 1, slug: "respiratory-protection", nameZh: "呼吸防护", nameEn: "Respiratory Protection" },
+  { id: 2, slug: "eye-face-protection", nameZh: "眼面防护", nameEn: "Eye and Face Protection" },
+  { id: 3, slug: "hearing-protection", nameZh: "听力防护", nameEn: "Hearing Protection" },
+  { id: 4, slug: "hand-protection", nameZh: "手部防护", nameEn: "Hand Protection" },
+  { id: 5, slug: "fall-protection", nameZh: "坠落防护", nameEn: "Fall Protection" },
+  { id: 6, slug: "gas-detection", nameZh: "气体检测", nameEn: "Gas Detection" },
+  { id: 7, slug: "fire-emergency-equipment", nameZh: "消防应急装备", nameEn: "Fire and Emergency Equipment" },
+  { id: 8, slug: "industrial-safety", nameZh: "工业安全综合", nameEn: "Industrial Safety" }
 ];
 
 function defaultStore(): Store {
@@ -122,6 +128,8 @@ function normalizeStore(store: Partial<Store>): Store {
     ...product,
     subcategoryZh: product.subcategoryZh || "",
     subcategoryEn: product.subcategoryEn || "",
+    brand: product.brand || "",
+    referencePrice: product.referencePrice || "",
     imageUrl: product.imageUrl || ""
   }));
 
@@ -254,6 +262,7 @@ export function createProduct(input: ProductInput) {
   const product: ProductStoredRecord = {
     id: store.nextProductId,
     categoryId: input.categoryId,
+    brand: input.brand,
     sku: input.sku,
     nameZh: input.nameZh,
     nameEn: input.nameEn,
@@ -262,6 +271,7 @@ export function createProduct(input: ProductInput) {
     subcategoryZh: input.subcategoryZh,
     subcategoryEn: input.subcategoryEn,
     specs: input.specs,
+    referencePrice: input.referencePrice,
     imageUrl: input.imageUrl,
     status: input.status,
     createdAt: now,
@@ -345,3 +355,4 @@ export function updateInquiryStatus(id: number, status: InquiryRecord["status"])
   writeStore(store);
   return true;
 }
+

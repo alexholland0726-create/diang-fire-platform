@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 const productSchema = z.object({
   categoryId: z.coerce.number().int().positive(),
+  brand: z.string().trim().max(80).optional().default(""),
   sku: z.string().trim().max(80).optional().default(""),
   nameZh: z.string().trim().min(1, "请输入中文产品名称"),
   nameEn: z.string().trim().max(160).optional().default(""),
@@ -15,6 +16,7 @@ const productSchema = z.object({
   subcategoryZh: z.string().trim().max(120).optional().default(""),
   subcategoryEn: z.string().trim().max(120).optional().default(""),
   specs: z.string().trim().max(4000).optional().default(""),
+  referencePrice: z.string().trim().max(80).optional().default(""),
   imageUrl: z.string().trim().max(500).optional().default(""),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT")
 });

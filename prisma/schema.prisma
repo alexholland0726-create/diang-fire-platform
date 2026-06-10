@@ -73,11 +73,13 @@ model Product {
   id          String          @id @default(cuid())
   slug        String          @unique
   sku         String?
+  brand       String?
   nameZh      String
   nameEn      String
   summaryZh   String?
   summaryEn   String?
   specs       Json?
+  referencePrice String?
   status      String          @default("DRAFT")
   categoryId  String
   category    ProductCategory @relation(fields: [categoryId], references: [id])

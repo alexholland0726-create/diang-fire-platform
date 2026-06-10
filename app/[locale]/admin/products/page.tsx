@@ -1,4 +1,4 @@
-import { AdminProductsManager } from "@/components/admin-products-manager";
+﻿import { AdminProductsManager } from "@/components/admin-products-manager";
 import { AdminShell } from "@/components/admin-shell";
 import { requireAdminPage } from "@/lib/auth";
 import type { Locale } from "@/lib/site";
