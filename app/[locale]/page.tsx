@@ -434,7 +434,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                   <h2 className="mt-4 text-3xl font-semibold leading-tight md:text-5xl">
                     {isZh ? "\u628a\u590d\u6742\u91c7\u8d2d\uff0c\u6574\u7406\u6210\u53ef\u6267\u884c\u7684\u88c5\u5907\u65b9\u6848" : "Turn complex sourcing into an executable equipment plan"}
                   </h2>
-                  <p className="mt-5 max-w-xl leading-8 text-steel">
+                  <p className="mt-5 max-w-xl leading-8 text-navy/88">
                     {isZh
                       ? "\u5ba2\u6237\u5173\u5fc3\u7684\u4e0d\u53ea\u662f\u4e70\u54ea\u4e00\u4ef6\u4ea7\u54c1\uff0c\u800c\u662f\u573a\u666f\u662f\u5426\u5339\u914d\u3001\u89c4\u683c\u662f\u5426\u51c6\u786e\u3001\u8bc1\u4e66\u8d44\u6599\u662f\u5426\u9f50\u5168\u3001\u4ea4\u671f\u548c\u540e\u7eed\u7ef4\u4fdd\u662f\u5426\u6709\u4eba\u8ddf\u8fdb\u3002"
                       : "Clients need more than a SKU: the right scenario fit, accurate specifications, complete documents, lead-time clarity, and service follow-up."}
@@ -455,7 +455,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                   ).map(([title, desc]) => (
                     <div key={title} className="rounded-md border border-white/45 bg-white/48 p-4 shadow-[0_10px_30px_rgba(7,20,37,0.08)] backdrop-blur-sm">
                       <div className="text-base font-semibold text-gold">{title}</div>
-                      <div className="mt-2 text-sm leading-6 text-steel">{desc}</div>
+                      <div className="mt-2 text-sm leading-6 text-navy/82">{desc}</div>
                     </div>
                   ))}
                 </div>
@@ -471,7 +471,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-5 text-xl font-semibold">{title}</h3>
-                  <p className="mt-3 leading-7 text-steel">{desc}</p>
+                  <p className="mt-3 leading-7 text-navy/84">{desc}</p>
                   </div>
                 </article>
               ))}
