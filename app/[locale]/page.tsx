@@ -33,7 +33,7 @@ const heroImage = "/site-images/hero-fire-scene.jpg";
 
 const productPanelImage = "/site-images/fire-scene-team-hose.jpg";
 
-const secondScreenImage = "/site-images/fire-transition-scene.jpg";
+const secondScreenImage = "/site-images/fire-foam-second-screen.jpg";
 
 const categoryVisuals: Record<string, string> = {
   "rescue-equipment": "/site-images/rescue-tools-spreader.jpg",
@@ -336,15 +336,22 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
         </div>
       </section>
 
-      <section className="relative z-10 -mt-10 overflow-hidden px-5 pb-10 md:-mt-14 md:pb-14">
+      <section
+        className="relative z-10 -mt-10 overflow-hidden px-5 pb-10 md:-mt-14 md:pb-14"
+        style={{ minHeight: "clamp(760px, 68vw, 1400px)" }}
+      >
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-80"
-          style={{ backgroundImage: `url(${secondScreenImage})` }}
+          className="absolute inset-0 bg-no-repeat opacity-95"
+          style={{
+            backgroundImage: `url(${secondScreenImage})`,
+            backgroundPosition: "top center",
+            backgroundSize: "100% auto"
+          }}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,37,0.96)_0%,rgba(7,20,37,0.78)_18%,rgba(11,23,41,0.72)_58%,rgba(246,248,251,0.96)_100%)]" />
-        <div className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(180deg,rgba(7,20,37,0.98)_0%,rgba(7,20,37,0.58)_55%,rgba(7,20,37,0)_100%)]" />
-        <div className="industrial-grid absolute inset-0 opacity-20" />
-        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-md border border-white/14 bg-ink/76 shadow-[0_28px_80px_rgba(0,0,0,0.30)] backdrop-blur-[1px]">
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,37,0.88)_0%,rgba(7,20,37,0.44)_22%,rgba(11,23,41,0.30)_56%,rgba(246,248,251,0.94)_100%)]" />
+        <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(180deg,rgba(7,20,37,0.96)_0%,rgba(7,20,37,0.38)_62%,rgba(7,20,37,0)_100%)]" />
+        <div className="industrial-grid absolute inset-0 opacity-12" />
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-md border border-white/16 bg-ink/64 shadow-[0_28px_80px_rgba(0,0,0,0.30)] backdrop-blur-[1px]">
           <div className="border-b border-white/10 bg-white/[0.035] px-5 py-5 text-white md:px-7">
             <div className="grid gap-5 lg:grid-cols-[1.15fr_1.85fr] lg:items-center">
               <div>
