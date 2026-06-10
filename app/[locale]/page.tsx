@@ -45,15 +45,8 @@ const categoryVisuals: Record<string, string> = {
 const marketVisuals = [
   "/site-images/fire-scene-team-hose.jpg",
   "/site-images/industrial-respirator-team.jpg",
-  "/site-images/fire-scene-team-hose.jpg",
-  "/site-images/rescue-tools-spreader.jpg"
-];
-
-const businessVisuals = [
-  "/site-images/rescue-tools-spreader.jpg",
-  "/site-images/industrial-respirator-team.jpg",
-  "/site-images/fire-hose-storage.jpg",
-  "/site-images/fire-scene-team-hose.jpg"
+  "/site-images/high-rise-rescue-ladder.jpg",
+  "/site-images/equipment-supply-compartments.jpg"
 ];
 
 export const dynamic = "force-dynamic";
@@ -341,9 +334,9 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
         </div>
       </section>
 
-      <section className="relative z-10 -mt-10 px-5 pb-12 md:-mt-14">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-md border border-ink/10 bg-white shadow-soft">
-          <div className="bg-ink px-5 py-5 text-white md:px-7">
+      <section className="relative z-10 -mt-10 bg-[linear-gradient(180deg,#071425_0%,#0B1729_54%,#F6F8FB_100%)] px-5 pb-10 md:-mt-14 md:pb-14">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-md border border-white/12 bg-ink shadow-[0_28px_80px_rgba(0,0,0,0.26)]">
+          <div className="border-b border-white/10 bg-white/[0.035] px-5 py-5 text-white md:px-7">
             <div className="grid gap-5 lg:grid-cols-[1.15fr_1.85fr] lg:items-center">
               <div>
                 <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
@@ -357,24 +350,24 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                 {[
                   {
                     label: isZh ? "看产品中心" : "View Products",
-                    desc: isZh ? "按分类查看已上架产品资料" : "Browse listed product documents",
+                    desc: isZh ? "按分类查看产品资料" : "Browse product documents",
                     href: `/${locale}/products`
                   },
                   {
                     label: isZh ? "提交清单" : "Send List",
-                    desc: isZh ? "把项目需求交给销售跟进" : "Send project needs for follow-up",
+                    desc: isZh ? "项目需求进入跟进" : "Send needs for follow-up",
                     href: `/${locale}/inquiry`
                   },
                   {
                     label: isZh ? "按场景选" : "By Scenario",
-                    desc: isZh ? "消防、石化、市政、工业入口" : "Fire, chemical, utility, industrial",
+                    desc: isZh ? "消防、石化、市政、工业" : "Fire, chemical, utility, industrial",
                     href: `/${locale}/solutions`
                   }
                 ].map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="group rounded-md border border-white/12 bg-white/[0.06] px-4 py-3 transition hover:border-gold/70 hover:bg-white/[0.11]"
+                    className="group rounded-md border border-white/18 bg-white/[0.055] px-4 py-3 transition hover:-translate-y-0.5 hover:border-gold/70 hover:bg-white/[0.11]"
                   >
                     <span className="flex items-center justify-between gap-3 text-sm font-semibold text-white">
                       {item.label}
@@ -391,20 +384,20 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             <Link
               key={market.zh}
               href={`/${locale}/solutions/${market.en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`}
-              className="group relative min-h-[224px] overflow-hidden border-b border-white/10 p-5 text-white transition sm:border-r lg:border-b-0 lg:min-h-[238px]"
+              className="group relative min-h-[224px] overflow-hidden border-b border-white/10 p-5 text-white transition sm:border-r lg:border-b-0 lg:min-h-[248px]"
             >
               <WindowBadge code={`H0${index + 2}`} />
               <div
-                className="absolute inset-0 bg-cover bg-center transition duration-700 ease-out group-hover:scale-110"
+                className="absolute inset-0 bg-cover bg-center opacity-80 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
                 style={{ backgroundImage: `url(${marketVisuals[index] || productPanelImage})` }}
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,23,41,0.34)_0%,rgba(11,23,41,0.82)_100%)] backdrop-blur-[1px] transition duration-500 group-hover:bg-[linear-gradient(180deg,rgba(11,23,41,0.20)_0%,rgba(11,23,41,0.78)_100%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,23,41,0.18)_0%,rgba(11,23,41,0.52)_58%,rgba(11,23,41,0.88)_100%)] transition duration-500 group-hover:bg-[linear-gradient(180deg,rgba(11,23,41,0.08)_0%,rgba(11,23,41,0.38)_58%,rgba(11,23,41,0.80)_100%)]" />
               <div className="industrial-grid absolute inset-0 opacity-25" />
-              <div className="relative flex h-full min-h-[162px] flex-col justify-end">
-                <div className="text-sm font-semibold text-white drop-shadow group-hover:text-gold">
+              <div className="relative flex h-full min-h-[186px] flex-col justify-end">
+                <div className="w-fit rounded-sm bg-ink/64 px-3 py-1 text-base font-semibold text-white shadow-[0_10px_24px_rgba(0,0,0,0.24)] backdrop-blur-md group-hover:text-gold">
                   {isZh ? market.zh : market.en}
                 </div>
-                <p className="mt-2 line-clamp-3 text-xs leading-5 text-white/78 drop-shadow">
+                <p className="mt-3 line-clamp-2 max-w-[18rem] text-sm leading-6 text-white/82 drop-shadow">
                   {isZh ? market.descZh : market.descEn}
                 </p>
               </div>
@@ -414,17 +407,13 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
         </div>
       </section>
 
-      <section className="bg-white px-5 pb-16 md:pb-24">
+      <section className="bg-[linear-gradient(180deg,#F6F8FB_0%,#FFFFFF_100%)] px-5 pb-16 md:pb-24">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
-            <div className="group relative min-h-[430px] overflow-hidden rounded-md p-7 text-white shadow-soft md:p-9">
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="relative overflow-hidden rounded-md border border-ink/10 bg-white p-7 text-ink shadow-soft md:p-9">
               <WindowBadge code="H05A" />
-              <div
-                className="absolute inset-0 bg-cover bg-center transition duration-700 ease-out group-hover:scale-105"
-                style={{ backgroundImage: "url(/site-images/rescue-tools-spreader.jpg)" }}
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(11,23,41,0.92)_0%,rgba(11,23,41,0.78)_52%,rgba(11,23,41,0.40)_100%)] backdrop-blur-[1px]" />
-              <div className="industrial-grid absolute inset-0 opacity-35" />
+              <div className="absolute left-0 top-0 h-full w-1 bg-gold" />
+              <div className="industrial-grid absolute inset-0 opacity-[0.045]" />
               <div className="relative flex h-full flex-col justify-between gap-10">
                 <div>
                   <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
@@ -433,7 +422,7 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                   <h2 className="mt-4 text-3xl font-semibold leading-tight md:text-5xl">
                     {isZh ? "\u628a\u590d\u6742\u91c7\u8d2d\uff0c\u6574\u7406\u6210\u53ef\u6267\u884c\u7684\u88c5\u5907\u65b9\u6848" : "Turn complex sourcing into an executable equipment plan"}
                   </h2>
-                  <p className="mt-5 max-w-xl leading-8 text-white/76">
+                  <p className="mt-5 max-w-xl leading-8 text-steel">
                     {isZh
                       ? "\u5ba2\u6237\u5173\u5fc3\u7684\u4e0d\u53ea\u662f\u4e70\u54ea\u4e00\u4ef6\u4ea7\u54c1\uff0c\u800c\u662f\u573a\u666f\u662f\u5426\u5339\u914d\u3001\u89c4\u683c\u662f\u5426\u51c6\u786e\u3001\u8bc1\u4e66\u8d44\u6599\u662f\u5426\u9f50\u5168\u3001\u4ea4\u671f\u548c\u540e\u7eed\u7ef4\u4fdd\u662f\u5426\u6709\u4eba\u8ddf\u8fdb\u3002"
                       : "Clients need more than a SKU: the right scenario fit, accurate specifications, complete documents, lead-time clarity, and service follow-up."}
@@ -452,50 +441,25 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                         ["Follow-up", "Connect inquiry, delivery, and service records"]
                       ]
                   ).map(([title, desc]) => (
-                    <div key={title} className="rounded-md border border-white/16 bg-white/10 p-4 shadow-[0_14px_34px_rgba(0,0,0,0.18)] backdrop-blur-md">
+                    <div key={title} className="rounded-md border border-ink/10 bg-mist p-4">
                       <div className="text-base font-semibold text-gold">{title}</div>
-                      <div className="mt-2 text-sm leading-6 text-white/72">{desc}</div>
+                      <div className="mt-2 text-sm leading-6 text-steel">{desc}</div>
                     </div>
                   ))}
                 </div>
-              <div className="hidden">
-              <div className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
-                {isZh ? "业务版图" : "Business Map"}
-              </div>
-              <h2 className="mt-4 text-3xl font-semibold leading-tight text-ink md:text-5xl">
-                {isZh ? "用简单清楚的结构，呈现帝昂的专业能力" : "A Clear Map of Diang's Capabilities"}
-              </h2>
-              <p className="mt-5 max-w-xl leading-8 text-steel">
-                {isZh
-                  ? "网站不只是展示公司，而是帮助客户快速理解：我们供应什么、服务什么场景、如何配合采购、后续如何跟进。"
-                  : "The website helps customers quickly understand what we supply, which scenarios we serve, how sourcing works, and how follow-up is managed."}
-              </p>
-              <div className="mt-7 grid gap-3 sm:grid-cols-3 lg:max-w-lg">
-                {(isZh ? ["产品力", "专业感", "亲和体验"] : ["Product strength", "Professional image", "Friendly UX"]).map((item) => (
-                  <div key={item} className="rounded-md border border-ink/10 bg-mist px-4 py-3 text-sm font-semibold text-ink">
-                    {item}
-                  </div>
-                ))}
               </div>
             </div>
-            </div>
-            </div>
-            <div className="grid gap-px overflow-hidden rounded-md border border-ink/10 bg-ink/10 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {businessMap.map(([Icon, title, desc], index) => (
-                <article key={title} className="group relative min-h-[210px] overflow-hidden p-6 text-white transition">
+                <article key={title} className="group relative min-h-[210px] overflow-hidden rounded-md border border-ink/10 bg-white p-6 text-ink shadow-soft transition hover:-translate-y-1 hover:border-gold/50">
                   <WindowBadge code={`H0${index + 6}`} />
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition duration-700 ease-out group-hover:scale-110"
-                    style={{ backgroundImage: `url(${businessVisuals[index] || productPanelImage})` }}
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(11,23,41,0.80)_0%,rgba(11,23,41,0.56)_58%,rgba(11,23,41,0.34)_100%)] backdrop-blur-[1px] transition duration-500 group-hover:bg-[linear-gradient(135deg,rgba(11,23,41,0.68)_0%,rgba(11,23,41,0.48)_58%,rgba(11,23,41,0.24)_100%)]" />
-                  <div className="industrial-grid absolute inset-0 opacity-25" />
+                  <div className="industrial-grid absolute inset-0 opacity-[0.045]" />
                   <div className="relative">
-                  <div className="grid h-11 w-11 place-items-center rounded-md bg-white/88 text-gold shadow-[0_12px_28px_rgba(0,0,0,0.22)] backdrop-blur-md transition group-hover:-translate-y-1">
+                  <div className="grid h-11 w-11 place-items-center rounded-md bg-ink text-gold shadow-[0_12px_28px_rgba(0,0,0,0.12)] transition group-hover:bg-gold group-hover:text-ink">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-5 text-xl font-semibold drop-shadow">{title}</h3>
-                  <p className="mt-3 leading-7 text-white/78 drop-shadow">{desc}</p>
+                  <h3 className="mt-5 text-xl font-semibold">{title}</h3>
+                  <p className="mt-3 leading-7 text-steel">{desc}</p>
                   </div>
                 </article>
               ))}
