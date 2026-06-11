@@ -214,15 +214,18 @@ export default function ProductsPage({
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {category.products.map((product) => (
                       <article key={product.id} className="overflow-hidden rounded-md border border-ink/10 bg-white">
-                        <div
-                          className="relative h-48 bg-ink bg-cover bg-center"
+                        <Link
+                          href={`/${locale}/products/${product.id}`}
+                          aria-label={isZh ? `查看${product.nameZh}详情` : `View details for ${product.nameEn || product.nameZh}`}
+                          className="group/image relative block h-48 bg-ink bg-cover bg-center"
                           style={{ backgroundImage: `url(${product.imageUrl || fallbackImage})` }}
                         >
                           <div className="absolute inset-0 bg-gradient-to-t from-ink/86 via-ink/30 to-transparent" />
+                          <div className="absolute inset-0 bg-white/0 transition group-hover/image:bg-white/10" />
                           <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">
                             {product.sku || (isZh ? category.zh : category.en)}
                           </span>
-                        </div>
+                        </Link>
                         <div className="p-5">
                           <h3 className="text-lg font-semibold leading-snug text-ink">
                             {isZh ? product.nameZh : product.nameEn || product.nameZh}
