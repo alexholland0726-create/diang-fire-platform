@@ -35,7 +35,8 @@ Recommended sorting logic:
 2. Reusable half-mask respirators
 3. Full-facepiece respirators
 4. Filter cartridges and filters
-5. Accessories
+5. SCBA and supplied-air respirators
+6. Accessories
 
 #### 1.1 Disposable / KN95 Particulate Respirators
 
@@ -225,6 +226,25 @@ Reference:
 
 - `12-3000-half-mask-and-filters.png`
 
+#### 1.11 3M SCOTT SCBA and Supplied-Air Respirators
+
+Candidate products:
+
+- 3M SCOTT iPak20 positive pressure fire SCBA
+- 3M SCOTT CG-8 supplied-air respirator / airline respirator
+
+Notes:
+
+- Keep these products as a separate air-supply respiratory protection group.
+- Do not mix them with filter respirators, half-mask respirators, full-facepiece cartridge respirators, or filter accessories.
+- The iPak20 page states compliance with XF 124-2013 and mentions China fire product voluntary certification. Product details should be verified before publication.
+- The CG-8 page should be displayed as a long-tube / supplied-air respirator system, with cart, air supply system, cylinder configuration, facepiece, hose, and emergency supply accessories shown as system components.
+
+Reference:
+
+- `20-scott-ipak20-scba.png`
+- `21-scott-cg8-supplied-air-respirator.png`
+
 ### 2. 3M Hearing Protection
 
 Recommended section title:
@@ -387,6 +407,8 @@ Recommended first batch:
 - 7501 / 7502 half-mask respirators
 - 6100 / 6200 half-mask respirators
 - 6001CN to 6007CN cartridge family
+- 3M SCOTT iPak20 positive pressure fire SCBA
+- 3M SCOTT CG-8 supplied-air respirator / airline respirator
 - PELTOR X4A / X5A / X4P3 / X5P3
 - SecureFit 3700 OTG safety glasses series
 - DBI-SALA ExoFit Light harness series
