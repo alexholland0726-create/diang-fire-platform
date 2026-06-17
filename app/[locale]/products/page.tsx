@@ -11,6 +11,12 @@ const fallbackImage = "/site-images/fire-scene-team-hose.jpg";
 const categoryVisuals: Record<string, string> = {
   "rescue-equipment": "/site-images/rescue-tools-spreader.jpg",
   "respiratory-protection": "/site-images/respiratory-scba-cylinder.jpg",
+  "eye-face-protection": "/site-images/industrial-respirator-team.jpg",
+  "hearing-protection": "/site-images/industrial-respirator-team.jpg",
+  "hand-protection": "/site-images/industrial-respirator-team.jpg",
+  "fall-protection": "/site-images/high-rise-rescue-ladder.jpg",
+  "gas-detection": "/site-images/industrial-respirator-team.jpg",
+  "fire-emergency-equipment": "/site-images/respiratory-scba-cylinder.jpg",
   firewear: "/site-images/firewear-firefighter-portrait.jpg",
   extinguishing: "/site-images/extinguishing-water-foam.jpg",
   "emergency-lighting": "/site-images/emergency-lighting-flashlight.jpg",
@@ -22,19 +28,48 @@ export default function ProductsPage({
   searchParams
 }: {
   params: { locale: Locale };
-  searchParams?: { category?: string; item?: string };
+  searchParams?: { category?: string; item?: string; brand?: string };
 }) {
   const locale = params.locale === "en" ? "en" : "zh";
   const isZh = locale === "zh";
   const activeCategory = searchParams?.category || "all";
   const activeItem = searchParams?.item?.trim() || "";
+  const activeBrand = searchParams?.brand?.trim() || "all";
   const dbCategories = listCategories();
-  const visibleProducts = listProducts().filter((product) => product.status === "PUBLISHED");
-  const categoryCards = productCategories.map((category) => {
-    const dbCategory = dbCategories.find((item) => item.slug === category.key);
-    const categoryProducts = dbCategory
-      ? visibleProducts.filter((product) => product.categoryId === dbCategory.id)
-      : [];
+  const allPublishedProducts = listProducts().filter((product) => product.status === "PUBLISHED");
+  const brands = Array.from(new Set(allPublishedProducts.map((product) => product.brand).filter(Boolean))).sort();
+  const visibleProducts =
+    activeBrand === "all"
+      ? allPublishedProducts
+      : allPublishedProducts.filter((product) => product.brand === activeBrand);
+  const configuredCategories = new Map(productCategories.map((category) => [category.key, category]));
+  const categoryHref = (categoryKey: string) => {
+    const query = new URLSearchParams();
+    if (categoryKey !== "all") query.set("category", categoryKey);
+    if (activeBrand !== "all") query.set("brand", activeBrand);
+    const queryString = query.toString();
+    return `/${locale}/products${queryString ? `?${queryString}` : ""}`;
+  };
+  const brandHref = (brand: string) => {
+    const query = new URLSearchParams();
+    if (activeCategory !== "all") query.set("category", activeCategory);
+    if (brand !== "all") query.set("brand", brand);
+    const queryString = query.toString();
+    return `/${locale}/products${queryString ? `?${queryString}` : ""}`;
+  };
+  const itemHref = (categoryKey: string, item: string) => {
+    const query = new URLSearchParams({ category: categoryKey, item });
+    if (activeBrand !== "all") query.set("brand", activeBrand);
+    return `/${locale}/products?${query.toString()}`;
+  };
+  const categoryCards = dbCategories.map((dbCategory) => {
+    const configuredCategory = configuredCategories.get(dbCategory.slug);
+    const categoryProducts = visibleProducts.filter((product) => product.categoryId === dbCategory.id);
+    const allCategoryProducts = allPublishedProducts.filter((product) => product.categoryId === dbCategory.id);
+    const subcategoriesZh = Array.from(new Set(allCategoryProducts.map((product) => product.subcategoryZh).filter(Boolean)));
+    const subcategoriesEn = Array.from(new Set(allCategoryProducts.map((product) => product.subcategoryEn).filter(Boolean)));
+    const itemsZh = configuredCategory?.itemsZh?.length ? configuredCategory.itemsZh : subcategoriesZh;
+    const itemsEn = configuredCategory?.itemsEn?.length ? configuredCategory.itemsEn : subcategoriesEn;
     const itemProducts = activeItem
       ? categoryProducts.filter((product) => {
           const haystack = [
@@ -54,8 +89,14 @@ export default function ProductsPage({
       : categoryProducts;
 
     return {
-      ...category,
-      products: activeItem && itemProducts.length === 0 ? categoryProducts : itemProducts,
+      key: dbCategory.slug,
+      zh: configuredCategory?.zh || dbCategory.nameZh,
+      en: configuredCategory?.en || dbCategory.nameEn,
+      descZh: configuredCategory?.descZh || `${dbCategory.nameZh}产品按品牌、系列和应用场景整理，方便快速选型和提交询价。`,
+      descEn: configuredCategory?.descEn || `${dbCategory.nameEn} products organized by brand, series, and application.`,
+      itemsZh,
+      itemsEn,
+      products: itemProducts,
       totalProducts: categoryProducts.length
     };
   });
@@ -140,7 +181,7 @@ export default function ProductsPage({
               </div>
               <div className="space-y-2">
                 <Link
-                  href={`/${locale}/products`}
+                  href={categoryHref("all")}
                   className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-semibold ${
                     activeCategory === "all" ? "bg-ink text-white" : "text-ink hover:bg-mist"
                   }`}
@@ -151,13 +192,42 @@ export default function ProductsPage({
                 {categoryCards.map((category) => (
                   <Link
                     key={category.key}
-                    href={`/${locale}/products?category=${category.key}`}
+                    href={categoryHref(category.key)}
                     className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-semibold ${
                       activeCategory === category.key ? "bg-ink text-white" : "text-ink hover:bg-mist"
                     }`}
                   >
                     <span>{isZh ? category.zh : category.en}</span>
                     <span className="text-xs opacity-70">{category.products.length}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div className="mt-4 rounded-md border border-ink/10 bg-white p-4 shadow-soft">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+                <Boxes className="h-4 w-4 text-gold" />
+                {isZh ? "品牌筛选" : "Brands"}
+              </div>
+              <div className="space-y-2">
+                <Link
+                  href={brandHref("all")}
+                  className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-semibold ${
+                    activeBrand === "all" ? "bg-ink text-white" : "text-ink hover:bg-mist"
+                  }`}
+                >
+                  {isZh ? "全部品牌" : "All Brands"}
+                  <span className="text-xs opacity-70">{allPublishedProducts.length}</span>
+                </Link>
+                {brands.map((brand) => (
+                  <Link
+                    key={brand}
+                    href={brandHref(brand)}
+                    className={`flex items-center justify-between rounded-md px-3 py-3 text-sm font-semibold ${
+                      activeBrand === brand ? "bg-ink text-white" : "text-ink hover:bg-mist"
+                    }`}
+                  >
+                    <span>{brand}</span>
+                    <span className="text-xs opacity-70">{allPublishedProducts.filter((product) => product.brand === brand).length}</span>
                   </Link>
                 ))}
               </div>
@@ -187,7 +257,7 @@ export default function ProductsPage({
                       </p>
                     </div>
                     <Link
-                      href={`/${locale}/products?category=${category.key}`}
+                      href={categoryHref(category.key)}
                       className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-gold px-4 text-sm font-bold text-ink"
                     >
                       {isZh ? "查看全部产品" : "View all"}
@@ -199,7 +269,7 @@ export default function ProductsPage({
                   {(isZh ? category.itemsZh : category.itemsEn).map((item) => (
                     <Link
                       key={item}
-                      href={`/${locale}/products?category=${category.key}&item=${encodeURIComponent(item)}`}
+                      href={itemHref(category.key, item)}
                       className={`rounded-full border px-3 py-2 text-sm transition ${
                         activeItem === item
                           ? "border-gold bg-gold/15 text-ink"

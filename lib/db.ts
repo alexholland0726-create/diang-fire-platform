@@ -133,7 +133,16 @@ function normalizeStore(store: Partial<Store>): Store {
   );
   const categories = [...seededCategories, ...customCategories];
 
-  const products = (store.products || []).map((product) => ({
+  const storedProducts = store.products || [];
+  const seededProducts = productSeeds.map((seed) => {
+    const existing = storedProducts.find((product) => product.id === seed.id);
+    return existing ? { ...seed, ...existing } : seed;
+  });
+  const customProducts = storedProducts.filter(
+    (product) => !productSeeds.some((seed) => seed.id === product.id)
+  );
+
+  const products = [...seededProducts, ...customProducts].map((product) => ({
     ...product,
     subcategoryZh: product.subcategoryZh || "",
     subcategoryEn: product.subcategoryEn || "",
@@ -173,7 +182,11 @@ function readStore(): Store {
   }
 
   const raw = fs.readFileSync(storePath, "utf8");
-  return normalizeStore(JSON.parse(raw) as Partial<Store>);
+  try {
+    return normalizeStore(JSON.parse(raw) as Partial<Store>);
+  } catch {
+    return defaultStore();
+  }
 }
 
 function writeStore(store: Store) {
