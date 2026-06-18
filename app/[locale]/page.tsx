@@ -645,17 +645,23 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
                         {category.products.map((product, productIndex) => (
                           <article key={product.id} id={`product-${product.id}`} className="relative scroll-mt-28 overflow-hidden rounded-md border border-ink/10 bg-white">
                             <WindowBadge code={`H${String(17 + categoryIndex * 10 + productIndex).padStart(2, "0")}`} />
-                            <div
-                              className="relative h-44 bg-ink bg-cover bg-center"
-                              style={{ backgroundImage: `url(${product.imageUrl || productPanelImage})` }}
+                            <Link
+                              href={`/${locale}/products/${product.id}`}
+                              aria-label={isZh ? `查看${product.nameZh}详情` : `View details for ${product.nameEn || product.nameZh}`}
+                              className="group/image block"
                             >
-                              <div className="absolute inset-0 bg-gradient-to-t from-ink/80 to-ink/8" />
-                              {product.sku ? (
-                                <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">
-                                  {product.sku}
-                                </span>
-                              ) : null}
-                            </div>
+                              <div
+                                className="relative h-44 bg-ink bg-cover bg-center transition duration-500 group-hover/image:scale-[1.02]"
+                                style={{ backgroundImage: `url(${product.imageUrl || productPanelImage})` }}
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-t from-ink/80 to-ink/8" />
+                                {product.sku ? (
+                                  <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink">
+                                    {product.sku}
+                                  </span>
+                                ) : null}
+                              </div>
+                            </Link>
                             <div className="p-5">
                               <h4 className="text-lg font-semibold leading-snug text-ink">
                                 {isZh ? product.nameZh : product.nameEn || product.nameZh}
@@ -887,20 +893,26 @@ export default function HomePage({ params }: { params: { locale: Locale } }) {
             {displayProducts.map((product, index) => (
               <article key={product.key} className="relative overflow-hidden rounded-md border border-ink/10 bg-white shadow-soft">
                 <WindowBadge code={`H${String(70 + index).padStart(2, "0")}`} />
-                <div
-                  className="relative flex h-52 items-end overflow-hidden bg-ink bg-cover bg-center p-6"
-                  style={{ backgroundImage: `url(${product.imageUrl})` }}
+                <Link
+                  href={product.href}
+                  aria-label={isZh ? `查看${product.nameZh}详情` : `View details for ${product.nameEn}`}
+                  className="group/image block"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/62 to-ink/12" />
-                  <div className="relative">
-                    <span className="rounded-full bg-gold px-3 py-1 text-xs font-semibold text-ink">
-                      {isZh ? product.tagZh : product.tagEn}
-                    </span>
-                    <h3 className="mt-4 text-2xl font-semibold text-white">
-                      {isZh ? product.nameZh : product.nameEn}
-                    </h3>
+                  <div
+                    className="relative flex h-52 items-end overflow-hidden bg-ink bg-cover bg-center p-6 transition duration-500 group-hover/image:scale-[1.02]"
+                    style={{ backgroundImage: `url(${product.imageUrl})` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/62 to-ink/12" />
+                    <div className="relative">
+                      <span className="rounded-full bg-gold px-3 py-1 text-xs font-semibold text-ink">
+                        {isZh ? product.tagZh : product.tagEn}
+                      </span>
+                      <h3 className="mt-4 text-2xl font-semibold text-white">
+                        {isZh ? product.nameZh : product.nameEn}
+                      </h3>
+                    </div>
                   </div>
-                </div>
+                </Link>
                 <div className="p-6">
                   <p className="leading-7 text-steel">{isZh ? product.descZh : product.descEn}</p>
                   <Link href={product.href} className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink hover:text-gold">
